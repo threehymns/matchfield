@@ -1,86 +1,61 @@
 import React from 'react';
 import { TilePattern, Tileset } from '../types';
 
-const Sun: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className} stroke="currentColor" strokeWidth="6" fill="none" strokeLinecap="round">
-    <circle cx="50" cy="50" r="20" />
-    <path d="M50 15 V5 M50 95 V85 M15 50 H5 M95 50 H85 M29 29 L22 22 M71 71 L78 78 M29 71 L22 78 M71 29 L78 22" />
-  </svg>
+const Nature1: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><linearGradient id="n1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#43e97b"/><stop offset="100%" stopColor="#38f9d7"/></linearGradient></defs><path d="M50 90 C 10 90, 10 10, 50 10 C 90 10, 90 90, 50 90 Z" fill="url(#n1)"/><path d="M50 10 V 90" stroke="#fff" strokeOpacity="0.5" strokeWidth="4"/></svg>
 );
-const Moon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className}><path d="M30 20 A 40 40 0 1 1 80 70 A 30 30 0 1 0 30 20" stroke="currentColor" strokeWidth="8" fill="none" /></svg>
+const Nature2: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><rect width="100" height="100" fill="#209cff"/><path d="M10 40 C 30 20, 70 20, 90 40" stroke="#f3f9a7" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M10 60 C 30 40, 70 40, 90 60" stroke="#f3f9a7" strokeWidth="8" fill="none" strokeLinecap="round"/><path d="M10 80 C 30 60, 70 60, 90 80" stroke="#f3f9a7" strokeWidth="8" fill="none" strokeLinecap="round"/></svg>
 );
-const Cloud: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className}><path d="M25 70 A 20 20 0 0 1 25 30 A 25 25 0 0 1 75 30 A 20 20 0 0 1 75 70 Z" stroke="currentColor" strokeWidth="8" fill="none" /></svg>
+const Nature3: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><polygon points="10,90 50,10 90,90" fill="#d3d3d3" /><polygon points="30,90 60,40 90,90" fill="#a9a9a9" /></svg>
 );
-const Leaf: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className}><path d="M50 90 C 10 90, 10 10, 50 10 C 90 10, 90 90, 50 90 M50 10 V90" stroke="currentColor" strokeWidth="8" fill="none" /></svg>
+const Nature4: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><radialGradient id="n4"><stop offset="0%" stopColor="#ff416c"/><stop offset="100%" stopColor="#ff4b2b"/></radialGradient></defs><circle cx="50" cy="50" r="40" fill="url(#n4)"/><circle cx="50" cy="50" r="15" fill="#fff" fillOpacity="0.5"/></svg>
 );
-const Wave: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className}><path d="M10 50 Q 30 30, 50 50 T 90 50" stroke="currentColor" strokeWidth="8" fill="none" /><path d="M10 70 Q 30 50, 50 70 T 90 70" stroke="currentColor" strokeWidth="8" fill="none" /></svg>
+const Nature5: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><rect x="10" y="10" width="80" height="80" fill="#804a00" rx="5" /><path d="M50,10 C 60 40, 40 60, 50 90 M 40 10 C 20 50, 60 50, 80 90 M 20 10 C 20 50, 50 50, 50 90" stroke="#c9a777" strokeWidth="4" fill="none" strokeLinecap="round" /></svg>
 );
-const Mountain: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className}><polygon points="10,90 40,30 60,70 80,40 90,90" stroke="currentColor" strokeWidth="8" fill="none" strokeLinejoin="round" /></svg>
+const Nature6: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><linearGradient id="n6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#d299c2"/><stop offset="100%" stopColor="#fef9d7"/></linearGradient></defs><path d="M20 80 A 30 30 0 0 1 80 80 A 35 35 0 0 1 20 80 Z" fill="url(#n6)"/><path d="M30 60 A 20 20 0 0 1 70 60 A 25 25 0 0 1 30 60 Z" fill="#fff" fillOpacity="0.5"/></svg>
 );
-const Flower: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className} stroke="currentColor" strokeWidth="6" fill="none">
-    <circle cx="50" cy="50" r="10" />
-    <path d="M50 40 C 40 20, 60 20, 50 40" />
-    <path d="M50 60 C 40 80, 60 80, 50 60" />
-    <path d="M60 50 C 80 40, 80 60, 60 50" />
-    <path d="M40 50 C 20 40, 20 60, 40 50" />
-  </svg>
+const Nature7: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><path d="M 50 10 L 84.6 30 L 84.6 70 L 50 90 L 15.4 70 L 15.4 30 Z" fill="#f6e383"/><path d="M 50 20 L 77.9 35 L 77.9 65 L 50 80 L 22.1 65 L 22.1 35 Z" fill="#ffd166"/></svg>
 );
-const Tree: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className} stroke="currentColor" strokeWidth="8" fill="none" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M50 90 V 50" />
-    <path d="M50 50 L 30 30 M50 50 L 70 30 M50 70 L 20 50 M50 70 L 80 50" />
-  </svg>
+const Nature8: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" fill="#a98c6a" stroke="#5a3d2b" strokeWidth="6" /><circle cx="50" cy="50" r="30" fill="none" stroke="#5a3d2b" strokeWidth="4" /><circle cx="50" cy="50" r="20" fill="none" stroke="#5a3d2b" strokeWidth="4" /><circle cx="50" cy="50" r="10" fill="none" stroke="#5a3d2b" strokeWidth="4" /></svg>
 );
 
+
 const patterns: TilePattern[] = [
-  { id: 9, component: Sun },
-  { id: 10, component: Moon },
-  { id: 11, component: Cloud },
-  { id: 12, component: Leaf },
-  { id: 13, component: Wave },
-  { id: 14, component: Mountain },
-  { id: 15, component: Flower },
-  { id: 16, component: Tree },
+  { id: 10, component: Nature1 },
+  { id: 11, component: Nature2 },
+  { id: 12, component: Nature3 },
+  { id: 13, component: Nature4 },
+  { id: 14, component: Nature5 },
+  { id: 15, component: Nature6 },
+  { id: 16, component: Nature7 },
+  { id: 17, component: Nature8 },
 ];
 
 export const natureTileset: Tileset = {
   name: 'Nature',
   patterns,
   colors: [
-    '#fb923c', // orange-400
-    '#a5b4fc', // indigo-300
-    '#93c5fd', // blue-300
-    '#4ade80', // green-400
-    '#5eead4', // teal-300
-    '#9ca3af', // gray-400
-    '#fb7185', // rose-400
-    '#65a30d', // lime-600
+    '#43e97b', '#209cff', '#d3d3d3', '#ff416c', '#804a00', '#d299c2', '#f6e383', '#a98c6a',
   ],
   backgroundColors: [
-    '#2c3e39',
-    '#3a504a',
-    '#2f4f4f',
-    '#556b2f',
-    '#696969',
-    '#2e473b',
-    '#3b594b',
-    '#486b5b',
+    '#3e4444', '#454c4c', '#4c5454', '#535c5c', '#5a6464', '#616c6c', '#687474', '#6f7c7c'
   ],
   theme: {
-    background: '#10201c',
-    textColor: '#e8f5e9',
-    accentColor: '#4ade80',
-    secondaryTextColor: '#a3b8a3',
-    boardBackgroundColor: 'rgba(74, 111, 103, 0.3)',
-    modalBackgroundColor: '#2a4f43',
-    buttonBackgroundColor: '#388e3c',
-    buttonTextColor: '#ffffff',
-    buttonHoverBackgroundColor: '#4caf50',
+    background: '#2c3333',
+    textColor: '#e8f6ef',
+    accentColor: '#43e97b',
+    secondaryTextColor: '#a4b0af',
+    boardBackgroundColor: 'rgba(67, 233, 123, 0.1)',
+    modalBackgroundColor: '#3e4444',
+    buttonBackgroundColor: '#43e97b',
+    buttonTextColor: '#2c3333',
+    buttonHoverBackgroundColor: '#38f9d7',
   }
 };

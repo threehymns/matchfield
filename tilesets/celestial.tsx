@@ -1,99 +1,76 @@
 import React from 'react';
 import { TilePattern, Tileset } from '../types';
 
-const Sun: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round"><circle cx="32" cy="32" r="10"/><path d="M32 16 V8 M32 56 V48 M16 32 H8 M56 32 H48 M22 22 L16 16 M48 48 L42 42 M22 42 L16 48 M48 22 L42 16"/></svg>
+const Celestial1: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><ellipse cx="50" cy="50" rx="40" ry="15" stroke="#a2a7f0" strokeWidth="6" fill="none"/><ellipse cx="50" cy="50" rx="15" ry="40" stroke="#a2a7f0" strokeWidth="6" fill="none"/><circle cx="50" cy="50" r="10" fill="#eb84d8"/></svg>
 );
-const CrescentMoon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><path d="M48,32A16,16,0,0,1,32,48,16,16,0,1,0,32,16,16,16,0,0,1,48,32Z"/></svg>
+const Celestial2: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="25" cy="25" r="5" fill="#fdfdfd"/><circle cx="75" cy="35" r="8" fill="#fdfdfd"/><circle cx="40" cy="70" r="6" fill="#fdfdfd"/><path d="M25 25 L 75 35 L 40 70 Z" stroke="#a2a7f0" strokeWidth="3" fill="none" strokeDasharray="5 5"/></svg>
 );
-const Star: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><path d="M32 12 L37.5 25 L52 25.5 L40.5 35.5 L44 49 L32 41 L20 49 L23.5 35.5 L12 25.5 L26.5 25 Z"/></svg>
+const Celestial3: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><radialGradient id="c3"><stop offset="0%" stopColor="rgba(255,255,255,0.8)"/><stop offset="100%" stopColor="rgba(162,167,240,0)"/></radialGradient></defs><rect width="100" height="100" fill="#1e133b" /><circle cx="50" cy="50" r="40" fill="url(#c3)"/></svg>
 );
-const Saturn: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round"><circle cx="32" cy="32" r="10" fill="currentColor"/><ellipse cx="32" cy="32" rx="24" ry="8" transform="rotate(-20 32 32)"/></svg>
+const Celestial4: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="25" fill="#de6262" /><ellipse cx="50" cy="50" rx="40" ry="10" stroke="#ffb88c" strokeWidth="6" fill="none"/></svg>
 );
-const Rocket: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><path d="M32 12 C 40 20, 40 40, 32 52 C 24 40, 24 20, 32 12 Z"/><path d="M26 44 L22 52 H 42 L 38 44 Z"/><circle cx="32" cy="32" r="4" fill="#fff" opacity="0.7"/></svg>
+const Celestial5: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><path d="M 80 50 A 30 30 0 0 1 27 73 A 25 25 0 1 0 80 50 Z" fill="#c3cfe2"/><circle cx="35" cy="35" r="5" fill="#f5f7fa"/></svg>
 );
-const Galaxy: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none"><path d="M32,32 a5,5 0 1,0 10,0 a10,10 0 1,0 -20,0 a15,15 0 1,0 30,0 a20,20 0 1,0 -40,0"/></svg>
+const Celestial6: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="25" cy="25" r="10" fill="#fbd786"/><path d="M 30 30 L 90 90 M 35 20 L 80 65 M 20 35 L 65 80" stroke="#f64f59" strokeWidth="5" strokeLinecap="round"/></svg>
 );
-const Comet: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round"><circle cx="20" cy="20" r="6" fill="currentColor"/><path d="M26 26 L 48 48 M 28 20 L 48 40 M 20 28 L 40 48"/></svg>
+const Celestial7: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><path d="M50 10 L 90 90 H 10 Z" stroke="#89f7fe" strokeWidth="6" fill="none" /><circle cx="50" cy="60" r="10" fill="#66a6ff"/></svg>
 );
-const UFO: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><path d="M12 36 Q 32 24, 52 36 Z"/><path d="M12 36 A 20 6 0 0 0 52 36"/><path d="M32 24 L 32 20 L 38 16 H 26 Z"/></svg>
+const Celestial8: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><linearGradient id="c8" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#e0c3fc"/><stop offset="100%" stopColor="#8ec5fc"/></linearGradient></defs><path d="M10 50 C 50 10, 50 90, 90 50 S 50 -30, 10 50" fill="url(#c8)"/></svg>
 );
-const Astronaut: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><rect x="16" y="20" width="32" height="28" rx="16"/><rect x="20" y="28" width="24" height="12" rx="4" fill="#fff" opacity="0.3"/></svg>
+const Celestial9: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><path d="M20 20 L 80 80 M20 30 L 70 80 M20 40 L 60 80 M20 80 L 80 20 M30 80 L 80 30 M40 80 L 80 40" stroke="#f5f7fa" strokeWidth="4" strokeLinecap="round" opacity="0.8"/></svg>
 );
-const Telescope: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none" strokeLinejoin="round" strokeLinecap="round"><path d="M48 24 L36 16 L20 32 L 28 44 Z"/><path d="M36 16 L 44 12 M 20 32 L 12 36 M 24 40 L 16 52 L 28 48"/></svg>
+const Celestial10: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="50" r="40" fill="#000"/><circle cx="50" cy="50" r="30" fill="none" stroke="#e0c3fc" strokeWidth="4"/><circle cx="50" cy="50" r="20" fill="none" stroke="#8ec5fc" strokeWidth="4"/></svg>
 );
-const Meteor: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} fill="currentColor"><path d="M16 16 L 48 48 L 40 52 L 12 20 Z"/><circle cx="16" cy="16" r="4"/></svg>
+const Celestial11: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><defs><radialGradient id="c11"><stop offset="20%" stopColor="#fff720"/><stop offset="100%" stopColor="#ff9a00"/></radialGradient></defs><circle cx="50" cy="50" r="20" fill="url(#c11)"/><path d="M50 10 V30 M50 70 V90 M10 50 H30 M70 50 H90" stroke="#ff9a00" strokeWidth="6" strokeLinecap="round"/></svg>
 );
-const Earth: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 64 64" className={className} stroke="currentColor" strokeWidth="4" fill="none"><circle cx="32" cy="32" r="16"/><path d="M32 16 C 38 24, 44 24, 48 32 C 44 40, 38 40, 32 48 C 26 40, 20 40, 16 32 C 20 24, 26 24, 32 16 Z"/></svg>
+const Celestial12: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}><circle cx="20" cy="50" r="10" fill="#66a6ff"/><circle cx="50" cy="50" r="15" fill="#89f7fe"/><circle cx="80" cy="50" r="12" fill="#a2a7f0"/><line x1="10" y1="50" x2="90" y2="50" stroke="#f5f7fa" strokeWidth="2" opacity="0.5"/></svg>
 );
-
 
 const patterns: TilePattern[] = [
-  { id: 17, component: Sun },
-  { id: 18, component: CrescentMoon },
-  { id: 19, component: Star },
-  { id: 20, component: Saturn },
-  { id: 21, component: Rocket },
-  { id: 22, component: Galaxy },
-  { id: 23, component: Comet },
-  { id: 24, component: UFO },
-  { id: 25, component: Astronaut },
-  { id: 26, component: Telescope },
-  { id: 27, component: Meteor },
-  { id: 28, component: Earth },
+  { id: 18, component: Celestial1 },
+  { id: 19, component: Celestial2 },
+  { id: 20, component: Celestial3 },
+  { id: 21, component: Celestial4 },
+  { id: 22, component: Celestial5 },
+  { id: 23, component: Celestial6 },
+  { id: 24, component: Celestial7 },
+  { id: 25, component: Celestial8 },
+  { id: 26, component: Celestial9 },
+  { id: 27, component: Celestial10 },
+  { id: 28, component: Celestial11 },
+  { id: 29, component: Celestial12 },
 ];
 
 export const celestialTileset: Tileset = {
   name: 'Celestial',
   patterns,
   colors: [
-    '#FFD700', // Gold
-    '#F5F5DC', // Beige
-    '#FFFFFF', // White
-    '#DEB887', // BurlyWood
-    '#C0C0C0', // Silver
-    '#ADD8E6', // LightBlue
-    '#F0E68C', // Khaki
-    '#98FB98', // PaleGreen
-    '#E6E6FA', // Lavender
-    '#B0C4DE', // LightSteelBlue
-    '#FFA07A', // LightSalmon
-    '#20B2AA', // LightSeaGreen
+    '#a2a7f0', '#fdfdfd', '#1e133b', '#de6262', '#c3cfe2', '#fbd786', '#89f7fe', '#e0c3fc', '#f5f7fa', '#000000', '#fff720', '#66a6ff'
   ],
    backgroundColors: [
-    '#4a4a4a',
-    '#5a5a5a',
-    '#6a6a6a',
-    '#4b5d67',
-    '#5b6d77',
-    '#6b7d87',
-    '#324654',
-    '#425664',
-    '#526674',
-    '#293133',
-    '#394143',
-    '#495153',
+    '#25283d', '#2c2f4a', '#333657', '#3a3d64', '#414471', '#484b7e', '#4f528b', '#565998', '#5d60a5', '#6467b2', '#6b6ebd', '#7275c9'
   ],
   theme: {
-    background: '#0c0a1a',
-    textColor: '#eadaff',
-    accentColor: '#c084fc',
-    secondaryTextColor: '#9e9e9e',
-    boardBackgroundColor: 'rgba(255, 255, 255, 0.07)',
-    modalBackgroundColor: '#2a214d',
-    buttonBackgroundColor: '#7c3aed',
-    buttonTextColor: '#ffffff',
-    buttonHoverBackgroundColor: '#9f67ff',
+    background: '#131420',
+    textColor: '#e8e9ff',
+    accentColor: '#a2a7f0',
+    secondaryTextColor: '#989ac3',
+    boardBackgroundColor: 'rgba(162, 167, 240, 0.1)',
+    modalBackgroundColor: '#25283d',
+    buttonBackgroundColor: '#a2a7f0',
+    buttonTextColor: '#131420',
+    buttonHoverBackgroundColor: '#eb84d8',
   }
 };
