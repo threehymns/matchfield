@@ -37,7 +37,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame, isExit
         isExiting ? 'animate-intro-exit' : 'animate-fade-in'
       }`}
     >
-      <div className={`relative mt-32 mb-8 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>
+      <header className={`relative mt-32 mb-8 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-pink-500 to-red-500">
           <div aria-hidden="true" className="absolute top-3 -z-1 text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-orange-500 to-red-500 blur-xl opacity-50 select-none">
             Matchfield
@@ -65,9 +65,9 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame, isExit
             fill="none"
           />
         </svg>
-      </div>
+      </header>
       <p className={`text-xl text-zinc-400 mb-20 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>Select a tileset to begin.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
+      <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
         {tilesets.map((tileset) => {
           const previewPatterns = tileset.patterns.slice(0, 4);
           const isSelected = selectedTileset?.name === tileset.name;
@@ -138,7 +138,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame, isExit
             </button>
           );
         })}
-      </div>
+      </main>
       <style>{`
         @keyframes fade-in {
           from { opacity: 0; }
