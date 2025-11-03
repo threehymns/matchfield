@@ -109,14 +109,14 @@ const App: React.FC = () => {
   }, [setupGame]);
 
   const handlePlayAgain = useCallback(() => {
-    if (tileset) {
-      setupGame(tileset);
-    }
-  }, [tileset, setupGame]);
+    setGameState('intro');
+    setTileset(null);
+    setIsGameWon(false);
+  }, []);
   
   useEffect(() => {
+    const root = document.documentElement;
     if (tileset) {
-      const root = document.documentElement;
       const theme = tileset.theme;
       root.style.setProperty('--background', theme.background);
       root.style.setProperty('--text-color', theme.textColor);
@@ -127,6 +127,19 @@ const App: React.FC = () => {
       root.style.setProperty('--button-background-color', theme.buttonBackgroundColor);
       root.style.setProperty('--button-text-color', theme.buttonTextColor);
       root.style.setProperty('--button-hover-background-color', theme.buttonHoverBackgroundColor);
+    } else {
+      const themeKeys = [
+        '--background',
+        '--text-color',
+        '--accent-color',
+        '--secondary-text-color',
+        '--board-background-color',
+        '--modal-background-color',
+        '--button-background-color',
+        '--button-text-color',
+        '--button-hover-background-color',
+      ];
+      themeKeys.forEach(key => root.style.removeProperty(key));
     }
   }, [tileset]);
 
@@ -213,20 +226,22 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col p-2">
-      <main className="flex flex-wrap flex-grow max-lg:items-center">
-        <div className="md:order-2 flex-1">
-          <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
-        </div>
-        <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
-          <GameBoard
-            board={board}
-            tileset={tileset}
-            activeTileIndex={activeTileIndex}
-            onTileClick={handleTileClick}
-            disappearingShapes={disappearingShapes}
-          />
-        </div>
-      </main>
+      {!isGameWon && (
+        <main className="flex flex-wrap flex-grow max-lg:items-center">
+          <div className="md:order-2 flex-1">
+            <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
+          </div>
+          <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
+            <GameBoard
+              board={board}
+              tileset={tileset}
+              activeTileIndex={activeTileIndex}
+              onTileClick={handleTileClick}
+              disappearingShapes={disappearingShapes}
+            />
+          </div>
+        </main>
+      )}
       <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
     </div>
   );

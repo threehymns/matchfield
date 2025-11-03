@@ -1,5 +1,5 @@
 {
-  "name": "SVG Tiles Game",
+  "name": "Matchfield",
   "description": "A clone of the New York Times Tiles game, built with React, TypeScript, and Tailwind CSS. It features matching pairs of tiles with SVG patterns and supports multiple, easily expandable tilesets.",
   "requestFramePermissions": []
 }
