@@ -11,6 +11,8 @@ import { vaporwaveTileset } from './vaporwave';
 import { origamiTileset } from './origami';
 import { decoTileset } from './deco';
 import { autumnTileset } from './autumn';
+import { zenithTileset } from './zenith';
+import { fractalTileset } from './fractal';
 import { Tileset } from '../types';
 
 export const allTilesets: Tileset[] = [
@@ -27,4 +29,6 @@ export const allTilesets: Tileset[] = [
   origamiTileset,
   decoTileset,
   autumnTileset,
+  zenithTileset,
+  fractalTileset,
 ];
