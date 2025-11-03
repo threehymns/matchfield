@@ -13,6 +13,7 @@ import { decoTileset } from './deco';
 import { autumnTileset } from './autumn';
 import { zenithTileset } from './zenith';
 import { fractalTileset } from './fractal';
+import { glyphTileset } from './glyph';
 import { Tileset } from '../types';
 
 export const allTilesets: Tileset[] = [
@@ -31,4 +32,5 @@ export const allTilesets: Tileset[] = [
   autumnTileset,
   zenithTileset,
   fractalTileset,
+  glyphTileset,
 ];
