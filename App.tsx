@@ -7,6 +7,8 @@ import GameBoard from './components/GameBoard';
 import GameControls from './components/GameControls';
 import VictoryModal from './components/VictoryModal';
 import IntroScreen from './components/IntroScreen';
+import MuteButton from './components/MuteButton';
+import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
 const GRID_SIZE = 36;
 const SHAPES_PER_TILE = 4;
@@ -22,6 +24,7 @@ const App: React.FC = () => {
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [disappearingShapes, setDisappearingShapes] = useState<Map<string, boolean>>(new Map());
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
     let generatedBoard: BoardTile[] | null = null;
@@ -112,7 +115,12 @@ const App: React.FC = () => {
     setGameState('intro');
     setTileset(null);
     setIsGameWon(false);
+    setBoard([]); // Reset the board to prevent re-triggering the win condition
   }, []);
+
+  const handleMuteToggle = () => {
+    setIsMuted(prev => !prev);
+  };
   
   useEffect(() => {
     const root = document.documentElement;
@@ -151,10 +159,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const isWon = board.length > 0 && board.every(tile => tile.shapes.every(s => s === null));
-    if (isWon) {
+    if (isWon && !isGameWon) {
+      playVictorySound(isMuted);
       setIsGameWon(true);
     }
-  }, [board]);
+  }, [board, isGameWon, isMuted]);
 
   const handleTileClick = (clickedIndex: number) => {
     if (isChecking || isGameWon) return;
@@ -179,6 +188,7 @@ const App: React.FC = () => {
     const commonShape = activeTile.shapes.find(s => s !== null && clickedTile.shapes.includes(s));
 
     if (commonShape) {
+      playMatchSound(isMuted);
       setCurrentCombo(prev => prev + 1);
 
       const activeShapeIndex = activeTile.shapes.indexOf(commonShape);
@@ -210,39 +220,41 @@ const App: React.FC = () => {
         setIsChecking(false);
       }, 400);
     } else {
+      playMismatchSound(isMuted);
       setCurrentCombo(0);
       setActiveTileIndex(null);
       setTimeout(() => setIsChecking(false), 200);
     }
   };
 
-  if (gameState === 'intro') {
-    return <IntroScreen tilesets={allTilesets} onStartGame={handleStartGame} />;
-  }
-
-  if (!tileset) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
   return (
-    <div className="h-screen flex flex-col p-2">
-      {!isGameWon && (
-        <main className="flex flex-wrap flex-grow max-lg:items-center">
-          <div className="md:order-2 flex-1">
-            <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
-          </div>
-          <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
-            <GameBoard
-              board={board}
-              tileset={tileset}
-              activeTileIndex={activeTileIndex}
-              onTileClick={handleTileClick}
-              disappearingShapes={disappearingShapes}
-            />
-          </div>
-        </main>
+    <div className="flex flex-col p-2">
+      <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
+      {gameState === 'intro' && <IntroScreen tilesets={allTilesets} onStartGame={handleStartGame} />}
+      {gameState === 'playing' && !tileset && (
+        <div className="flex items-center justify-center h-screen">Loading...</div>
       )}
-      <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
+      {gameState === 'playing' && tileset && (
+        <>
+          {!isGameWon && (
+            <main className="flex flex-wrap flex-grow max-lg:items-center">
+              <div className="md:order-2 flex-1">
+                <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
+              </div>
+              <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
+                <GameBoard
+                  board={board}
+                  tileset={tileset}
+                  activeTileIndex={activeTileIndex}
+                  onTileClick={handleTileClick}
+                  disappearingShapes={disappearingShapes}
+                />
+              </div>
+            </main>
+          )}
+          <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
+        </>
+      )}
     </div>
   );
 };
