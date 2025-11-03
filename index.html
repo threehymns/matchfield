@@ -5,6 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Matchfield - Tile matching game.</title>
+
+    <style>
+      body {
+        background-color: var(--background, #09090b);
+        color: var(--text-color, #f4f4f5);
+        transition: background-color 0.5s, color 0.5s;
+      }
+    </style>
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Matchfield" />
@@ -12,40 +20,7 @@
     <meta property="og:url" content="https://matchfield.vercel.app" />
     <meta property="og:image" content="https://matchfield.vercel.app/og.png" />
     <meta property="og:type" content="website" />
-
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0"
-  }
-}
-</script>
-<style type="text/tailwindcss">
-  /* funnel-display-latin-wght-normal */
-  @font-face {
-    font-family: 'Funnel Display Variable';
-    font-style: normal;
-    font-display: swap;
-    font-weight: 300 800;
-    src: url(https://cdn.jsdelivr.net/fontsource/fonts/funnel-display:vf@latest/latin-wght-normal.woff2) format('woff2-variations');
-    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-  }
-  @theme {
-    --font-sans: 'Funnel Display Variable', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  }
-</style>
-<style>
-  body {
-    background-color: var(--background, #09090b);
-    color: var(--text-color, #f4f4f5);
-    transition: background-color 0.5s, color 0.5s;
-  }
-</style>
-</head>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
-
-declare var confetti: any;
+import confetti from 'canvas-confetti';
 
 interface VictoryModalProps {
   isOpen: boolean;
