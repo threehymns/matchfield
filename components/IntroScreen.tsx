@@ -39,6 +39,9 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame, isExit
     >
       <div className={`relative mt-32 mb-8 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-pink-500 to-red-500">
+          <div aria-hidden="true" className="absolute top-3 -z-1 text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-orange-500 to-red-500 blur-xl opacity-50 select-none">
+            Matchfield
+          </div>
           Matchfield
         </h1>
         <svg
