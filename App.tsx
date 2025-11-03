@@ -267,7 +267,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col p-2">
+    <div className="flex flex-col p-2 min-h-screen">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
       {gameState === 'intro' && (
         <IntroScreen
