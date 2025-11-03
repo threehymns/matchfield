@@ -5,7 +5,7 @@ import { chromaTileset } from './chroma';
 import { tesseraTileset } from './tessera';
 import { aetherTileset } from './aether';
 import { kintsugiTileset } from './kintsugi';
-import { rorschachTileset } from './rorschach';
+import { somethinTileset } from './somethin';
 import { bauhausTileset } from './bauhaus';
 import { vaporwaveTileset } from './vaporwave';
 import { origamiTileset } from './origami';
@@ -23,7 +23,7 @@ export const allTilesets: Tileset[] = [
   tesseraTileset,
   aetherTileset,
   kintsugiTileset,
-  rorschachTileset,
+  somethinTileset,
   bauhausTileset,
   vaporwaveTileset,
   origamiTileset,
