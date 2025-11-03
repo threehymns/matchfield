@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TilePattern, Tileset } from '../types';
 
@@ -74,7 +73,7 @@ export const natureTileset: Tileset = {
     '#486b5b',
   ],
   theme: {
-    background: '#1a2e29',
+    background: '#10201c',
     textColor: '#e8f5e9',
     accentColor: '#4ade80',
     secondaryTextColor: '#a3b8a3',

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TilePattern, Tileset } from '../types';
 
@@ -69,7 +68,7 @@ export const summerTileset: Tileset = {
     '#5a6d78',
   ],
   theme: {
-    background: '#0d2c40',
+    background: '#041520',
     textColor: '#e0f7fa',
     accentColor: '#5bc0de',
     secondaryTextColor: '#b0bec5',
