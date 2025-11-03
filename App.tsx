@@ -14,6 +14,7 @@ import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sou
 const GRID_SIZE = 36;
 const SHAPES_PER_TILE = 4;
 const TOTAL_SHAPES = GRID_SIZE * SHAPES_PER_TILE;
+const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<'intro' | 'playing'>('intro');
@@ -23,6 +24,7 @@ const App: React.FC = () => {
   const [currentCombo, setCurrentCombo] = useState<number>(0);
   const [longestCombo, setLongestCombo] = useState<number>(0);
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
+  const [isPerfectScore, setIsPerfectScore] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [disappearingShapes, setDisappearingShapes] = useState<Map<string, boolean>>(new Map());
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -128,6 +130,7 @@ const App: React.FC = () => {
     setGameState('intro');
     setTileset(null);
     setIsGameWon(false);
+    setIsPerfectScore(false);
     setBoard([]); // Reset the board to prevent re-triggering the win condition
   }, []);
 
@@ -200,9 +203,13 @@ const App: React.FC = () => {
     const isWon = board.length > 0 && board.every(tile => tile.shapes.every(s => s === null));
     if (isWon && !isGameWon) {
       playVictorySound(isMuted);
+      const finalCombo = Math.max(longestCombo, currentCombo);
+      if (finalCombo === TOTAL_PAIRS) {
+        setIsPerfectScore(true);
+      }
       setIsGameWon(true);
     }
-  }, [board, isGameWon, isMuted]);
+  }, [board, isGameWon, isMuted, longestCombo, currentCombo]);
 
   const handleTileClick = (clickedIndex: number) => {
     if (isChecking || isGameWon || isEscapeModalOpen) return;
@@ -307,7 +314,12 @@ const App: React.FC = () => {
               />
             </div>
           </main>
-          <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
+          <VictoryModal
+            isOpen={isGameWon}
+            longestCombo={longestCombo}
+            onPlayAgain={handlePlayAgain}
+            isPerfectScore={isPerfectScore}
+          />
           <EscapeModal
             isOpen={isEscapeModalOpen}
             onConfirm={handleConfirmReturnToMenu}
