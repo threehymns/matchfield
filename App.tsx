@@ -8,6 +8,7 @@ import GameControls from './components/GameControls';
 import VictoryModal from './components/VictoryModal';
 import IntroScreen from './components/IntroScreen';
 import MuteButton from './components/MuteButton';
+import EscapeModal from './components/EscapeModal';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
 const GRID_SIZE = 36;
@@ -25,6 +26,9 @@ const App: React.FC = () => {
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [disappearingShapes, setDisappearingShapes] = useState<Map<string, boolean>>(new Map());
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isExitingIntro, setIsExitingIntro] = useState(false);
+  const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
+  const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
     let generatedBoard: BoardTile[] | null = null;
@@ -106,10 +110,19 @@ const App: React.FC = () => {
   }, []);
   
   const handleStartGame = useCallback((selectedTileset: Tileset) => {
-    setTileset(selectedTileset);
-    setupGame(selectedTileset);
-    setGameState('playing');
-  }, [setupGame]);
+    setPendingTileset(selectedTileset);
+    setIsExitingIntro(true);
+  }, []);
+
+  const handleIntroExitComplete = useCallback(() => {
+    if (pendingTileset) {
+      setTileset(pendingTileset);
+      setupGame(pendingTileset);
+      setGameState('playing');
+      setIsExitingIntro(false);
+      setPendingTileset(null);
+    }
+  }, [pendingTileset, setupGame]);
 
   const handlePlayAgain = useCallback(() => {
     setGameState('intro');
@@ -121,11 +134,37 @@ const App: React.FC = () => {
   const handleMuteToggle = () => {
     setIsMuted(prev => !prev);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // The modal now handles its own closing via Escape.
+        // This listener only needs to handle opening it.
+        if (gameState === 'playing' && !isGameWon && !isEscapeModalOpen) {
+          setIsEscapeModalOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameState, isGameWon, isEscapeModalOpen]);
+
+  const handleConfirmReturnToMenu = () => {
+    setIsEscapeModalOpen(false);
+    handlePlayAgain();
+  };
+
+  const handleCancelReturnToMenu = () => {
+    setIsEscapeModalOpen(false);
+  };
   
   useEffect(() => {
     const root = document.documentElement;
-    if (tileset) {
-      const theme = tileset.theme;
+    const themeTarget = isExitingIntro ? pendingTileset : tileset;
+    if (themeTarget) {
+      const theme = themeTarget.theme;
       root.style.setProperty('--background', theme.background);
       root.style.setProperty('--text-color', theme.textColor);
       root.style.setProperty('--accent-color', theme.accentColor);
@@ -149,7 +188,7 @@ const App: React.FC = () => {
       ];
       themeKeys.forEach(key => root.style.removeProperty(key));
     }
-  }, [tileset]);
+  }, [tileset, pendingTileset, isExitingIntro]);
 
   useEffect(() => {
     if (longestCombo < currentCombo) {
@@ -166,7 +205,7 @@ const App: React.FC = () => {
   }, [board, isGameWon, isMuted]);
 
   const handleTileClick = (clickedIndex: number) => {
-    if (isChecking || isGameWon) return;
+    if (isChecking || isGameWon || isEscapeModalOpen) return;
 
     const clickedTile = board[clickedIndex];
     if (clickedTile.shapes.every(s => s === null)) return;
@@ -230,29 +269,50 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col p-2">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
-      {gameState === 'intro' && <IntroScreen tilesets={allTilesets} onStartGame={handleStartGame} />}
+      {gameState === 'intro' && (
+        <IntroScreen
+          tilesets={allTilesets}
+          onStartGame={handleStartGame}
+          isExiting={isExitingIntro}
+          selectedTileset={pendingTileset}
+          onExitComplete={handleIntroExitComplete}
+        />
+       )}
       {gameState === 'playing' && !tileset && (
         <div className="flex items-center justify-center h-screen">Loading...</div>
       )}
       {gameState === 'playing' && tileset && (
         <>
-          {!isGameWon && (
-            <main className="flex flex-wrap flex-grow max-lg:items-center">
-              <div className="md:order-2 flex-1">
-                <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
-              </div>
-              <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
-                <GameBoard
-                  board={board}
-                  tileset={tileset}
-                  activeTileIndex={activeTileIndex}
-                  onTileClick={handleTileClick}
-                  disappearingShapes={disappearingShapes}
-                />
-              </div>
-            </main>
-          )}
+          <style>{`
+            @keyframes game-fade-in {
+              from { opacity: 0; transform: scale(0.98); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            .animate-game-fade-in { 
+              animation: game-fade-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+              opacity: 0;
+            }
+          `}</style>
+          <main className={`flex flex-wrap flex-grow max-lg:items-center animate-game-fade-in ${isGameWon ? 'pointer-events-none' : ''}`}>
+            <div className="md:order-2 flex-1">
+              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
+            </div>
+            <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
+              <GameBoard
+                board={board}
+                tileset={tileset}
+                activeTileIndex={activeTileIndex}
+                onTileClick={handleTileClick}
+                disappearingShapes={disappearingShapes}
+              />
+            </div>
+          </main>
           <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
+          <EscapeModal
+            isOpen={isEscapeModalOpen}
+            onConfirm={handleConfirmReturnToMenu}
+            onCancel={handleCancelReturnToMenu}
+          />
         </>
       )}
     </div>

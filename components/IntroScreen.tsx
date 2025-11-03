@@ -1,15 +1,43 @@
-import React from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { Tileset } from '../types';
 
 interface IntroScreenProps {
   tilesets: Tileset[];
   onStartGame: (tileset: Tileset) => void;
+  isExiting: boolean;
+  selectedTileset: Tileset | null;
+  onExitComplete: () => void;
 }
 
-const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame }) => {
+const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame, isExiting, selectedTileset, onExitComplete }) => {
+  const introRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = introRef.current;
+    if (isExiting && node) {
+      const handleAnimationEnd = (event: AnimationEvent) => {
+        if (event.target === node) {
+          onExitComplete();
+        }
+      };
+      node.addEventListener('animationend', handleAnimationEnd);
+      return () => {
+        if (node) {
+          node.removeEventListener('animationend', handleAnimationEnd);
+        }
+      };
+    }
+  }, [isExiting, onExitComplete]);
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 text-center animate-fade-in bg-zinc-950">
-      <div className="relative mt-32 mb-8">
+    <div
+      ref={introRef}
+      className={`min-h-screen w-full flex flex-col items-center justify-center p-4 text-center bg-zinc-950 ${
+        isExiting ? 'animate-intro-exit' : 'animate-fade-in'
+      }`}
+    >
+      <div className={`relative mt-32 mb-8 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-pink-500 to-red-500">
           Matchfield
         </h1>
@@ -35,17 +63,27 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame }) => {
           />
         </svg>
       </div>
-      <p className="text-xl text-zinc-400 mb-20">Select a tileset to begin.</p>
+      <p className={`text-xl text-zinc-400 mb-20 transition-all duration-300 ${isExiting ? 'opacity-0 scale-95' : 'opacity-100'}`}>Select a tileset to begin.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
         {tilesets.map((tileset) => {
           const previewPatterns = tileset.patterns.slice(0, 4);
+          const isSelected = selectedTileset?.name === tileset.name;
+          const buttonClasses = isExiting
+            ? isSelected
+              ? 'animate-tile-selected-exit'
+              : 'animate-tile-exit'
+            : '';
+
           return (
             <button
               key={tileset.name}
               onClick={() => onStartGame(tileset)}
+              disabled={isExiting}
               className={`group relative aspect-square w-full overflow-hidden rounded-3xl shadow-lg
-                         transition-all duration-300 transform hover:scale-105 
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 focus:ring-[${tileset.theme.accentColor}]`}
+                         transition-all duration-300 transform 
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 focus:ring-[${tileset.theme.accentColor}]
+                         ${!isExiting ? 'hover:scale-105' : ''}
+                         ${buttonClasses}`}
               style={{
                 backgroundColor: tileset.theme.background,
               }}
@@ -104,6 +142,32 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ tilesets, onStartGame }) => {
           to { opacity: 1; }
         }
         .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+
+        @keyframes intro-exit {
+          from { opacity: 1; }
+          to { opacity: 0; visibility: hidden; }
+        }
+        .animate-intro-exit {
+          animation: intro-exit 0.6s ease-in forwards;
+        }
+
+        @keyframes tile-exit {
+          from { opacity: 1; transform: scale(1); }
+          to { opacity: 0; transform: scale(0.9); }
+        }
+        .animate-tile-exit {
+          animation: tile-exit 0.4s ease-out forwards;
+        }
+        
+        @keyframes tile-selected-exit {
+          0% { transform: scale(1); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+          50% { transform: scale(1.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+          100% { transform: scale(1.1); opacity: 0; }
+        }
+        .animate-tile-selected-exit {
+          animation: tile-selected-exit 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          z-index: 10;
+        }
       `}</style>
     </div>
   );
