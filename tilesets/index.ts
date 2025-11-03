@@ -15,22 +15,30 @@ import { zenithTileset } from './zenith';
 import { fractalTileset } from './fractal';
 import { glyphTileset } from './glyph';
 import { Tileset } from '../types';
+import { abyssTileset } from './abyss';
+import { botanicaTileset } from './botanica';
+import { radiantTileset } from './radiant';
+import { lagoonTileset } from './lagoon';
 
 export const allTilesets: Tileset[] = [
   summerTileset,
+  lagoonTileset,
   natureTileset,
-  celestialTileset,
-  chromaTileset,
-  tesseraTileset,
-  aetherTileset,
-  kintsugiTileset,
-  somethinTileset,
-  bauhausTileset,
-  vaporwaveTileset,
-  origamiTileset,
-  decoTileset,
+  botanicaTileset,
   autumnTileset,
-  zenithTileset,
+  celestialTileset,
+  aetherTileset,
+  abyssTileset,
+  chromaTileset,
+  radiantTileset,
+  vaporwaveTileset,
   fractalTileset,
+  tesseraTileset,
+  bauhausTileset,
+  kintsugiTileset,
+  decoTileset,
+  origamiTileset,
+  somethinTileset,
   glyphTileset,
+  zenithTileset,
 ];
