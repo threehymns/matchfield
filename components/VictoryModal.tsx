@@ -1,0 +1,39 @@
+import React from 'react';
+
+interface VictoryModalProps {
+  isOpen: boolean;
+  longestCombo: number;
+  onPlayAgain: () => void;
+}
+
+const VictoryModal: React.FC<VictoryModalProps> = ({ isOpen, longestCombo, onPlayAgain }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300">
+      <div className="bg-[#f0f8ff] text-[#0f4c81] rounded-xl p-8 text-center shadow-2xl transform transition-all scale-95 animate-modal-pop-in w-11/12 max-w-sm">
+        <h2 className="text-4xl font-bold text-yellow-500 mb-2">Congratulations!</h2>
+        <p className="text-[#0f4c81]/80 mb-4 text-lg">You cleared the board.</p>
+        <div className="bg-white/70 rounded-lg p-4 mb-6">
+          <p className="text-[#0f4c81]/70 text-sm">Longest Combo</p>
+          <p className="text-3xl font-bold">{longestCombo}</p>
+        </div>
+        <button
+          onClick={onPlayAgain}
+          className="w-full px-6 py-3 bg-[#0f4c81] hover:bg-[#1565c0] text-white font-bold rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#1565c0] focus:ring-opacity-75"
+        >
+          Play Again
+        </button>
+      </div>
+       <style>{`
+        @keyframes modal-pop-in {
+          0% { opacity: 0; transform: scale(0.9); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-modal-pop-in { animation: modal-pop-in 0.3s ease-out forwards; }
+      `}</style>
+    </div>
+  );
+};
+
+export default VictoryModal;
