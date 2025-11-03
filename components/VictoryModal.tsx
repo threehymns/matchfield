@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface VictoryModalProps {
@@ -11,16 +12,16 @@ const VictoryModal: React.FC<VictoryModalProps> = ({ isOpen, longestCombo, onPla
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300">
-      <div className="bg-[#f0f8ff] text-[#0f4c81] rounded-xl p-8 text-center shadow-2xl transform transition-all scale-95 animate-modal-pop-in w-11/12 max-w-sm">
-        <h2 className="text-4xl font-bold text-yellow-500 mb-2">Congratulations!</h2>
-        <p className="text-[#0f4c81]/80 mb-4 text-lg">You cleared the board.</p>
-        <div className="bg-white/70 rounded-lg p-4 mb-6">
-          <p className="text-[#0f4c81]/70 text-sm">Longest Combo</p>
+      <div className="bg-[var(--modal-background-color)] text-[var(--text-color)] rounded-xl p-8 text-center shadow-2xl transform transition-all scale-95 animate-modal-pop-in w-11/12 max-w-sm">
+        <h2 className="text-4xl font-bold text-[var(--accent-color)] mb-2">Congratulations!</h2>
+        <p className="text-[var(--secondary-text-color)] mb-4 text-lg">You cleared the board.</p>
+        <div className="bg-black/20 rounded-lg p-4 mb-6">
+          <p className="text-[var(--secondary-text-color)] text-sm">Longest Combo</p>
           <p className="text-3xl font-bold">{longestCombo}</p>
         </div>
         <button
           onClick={onPlayAgain}
-          className="w-full px-6 py-3 bg-[#0f4c81] hover:bg-[#1565c0] text-white font-bold rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#1565c0] focus:ring-opacity-75"
+          className="w-full px-6 py-3 bg-[var(--button-background-color)] hover:bg-[var(--button-hover-background-color)] text-[var(--button-text-color)] font-bold rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-opacity-75"
         >
           Play Again
         </button>

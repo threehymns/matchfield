@@ -54,23 +54,34 @@ export const natureTileset: Tileset = {
   name: 'Nature',
   patterns,
   colors: [
-    'text-orange-400',
-    'text-indigo-300',
-    'text-blue-300',
-    'text-green-400',
-    'text-teal-300',
-    'text-gray-400',
-    'text-rose-400',
-    'text-lime-600',
+    '#fb923c', // orange-400
+    '#a5b4fc', // indigo-300
+    '#93c5fd', // blue-300
+    '#4ade80', // green-400
+    '#5eead4', // teal-300
+    '#9ca3af', // gray-400
+    '#fb7185', // rose-400
+    '#65a30d', // lime-600
   ],
   backgroundColors: [
-    '#e0f2f1', // teal lighten-5
-    '#e8f5e9', // green lighten-5
-    '#f3e5f5', // purple lighten-5
-    '#fff3e0', // orange lighten-5
-    '#f1f8e9', // light-green lighten-5
-    '#e3f2fd', // blue lighten-5
-    '#fce4ec', // pink lighten-5
-    '#f9fbe7', // lime lighten-5
+    '#2c3e39',
+    '#3a504a',
+    '#2f4f4f',
+    '#556b2f',
+    '#696969',
+    '#2e473b',
+    '#3b594b',
+    '#486b5b',
   ],
+  theme: {
+    background: '#1a2e29',
+    textColor: '#e8f5e9',
+    accentColor: '#4ade80',
+    secondaryTextColor: '#a3b8a3',
+    boardBackgroundColor: 'rgba(74, 111, 103, 0.3)',
+    modalBackgroundColor: '#2a4f43',
+    buttonBackgroundColor: '#388e3c',
+    buttonTextColor: '#ffffff',
+    buttonHoverBackgroundColor: '#4caf50',
+  }
 };

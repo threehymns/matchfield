@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { BoardTile, Tileset } from './types';
 import { allTilesets } from './tilesets';
@@ -5,12 +6,14 @@ import { shuffleArray } from './utils/shuffle';
 import GameBoard from './components/GameBoard';
 import GameControls from './components/GameControls';
 import VictoryModal from './components/VictoryModal';
+import IntroScreen from './components/IntroScreen';
 
 const GRID_SIZE = 36;
 const SHAPES_PER_TILE = 4;
 const TOTAL_SHAPES = GRID_SIZE * SHAPES_PER_TILE;
 
 const App: React.FC = () => {
+  const [gameState, setGameState] = useState<'intro' | 'playing'>('intro');
   const [tileset, setTileset] = useState<Tileset | null>(null);
   const [board, setBoard] = useState<BoardTile[]>([]);
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null);
@@ -20,13 +23,10 @@ const App: React.FC = () => {
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [disappearingShapes, setDisappearingShapes] = useState<Map<string, boolean>>(new Map());
 
-  const setupGame = useCallback(() => {
-    const selectedTileset = allTilesets[0];
-    setTileset(selectedTileset);
-
+  const setupGame = useCallback((selectedTileset: Tileset) => {
     let generatedBoard: BoardTile[] | null = null;
     let attempts = 0;
-    const MAX_ATTEMPTS = 50; // Generation can fail, so we retry.
+    const MAX_ATTEMPTS = 50;
 
     while (!generatedBoard && attempts < MAX_ATTEMPTS) {
       attempts++;
@@ -36,17 +36,18 @@ const App: React.FC = () => {
       );
       const uniqueShapeIds = selectedTileset.patterns.map(p => p.id);
 
-      const numInstancesPerShape = TOTAL_SHAPES / uniqueShapeIds.length;
-      if (numInstancesPerShape % 2 !== 0) {
-        console.error("Tileset configuration results in an odd number of some shapes. The board will be unsolvable.");
-        setBoard([]);
-        return;
+      const numTotalPairs = TOTAL_SHAPES / 2;
+      const numPairsPerShape = Math.floor(numTotalPairs / uniqueShapeIds.length);
+      const remainderPairs = numTotalPairs % uniqueShapeIds.length;
+      
+      const pairPool = shuffleArray([
+        ...uniqueShapeIds.flatMap(id => Array(numPairsPerShape).fill(id)),
+        ...shuffleArray(uniqueShapeIds).slice(0, remainderPairs)
+      ]);
+      
+      if (pairPool.length * 2 !== TOTAL_SHAPES) {
+        console.error("Mismatch in shape counts. The board might be unsolvable.");
       }
-      const numPairsPerShape = numInstancesPerShape / 2;
-
-      const pairPool = shuffleArray(
-        uniqueShapeIds.flatMap(id => Array(numPairsPerShape).fill(id))
-      );
 
       const allCoords: [number, number][] = [];
       for (let i = 0; i < GRID_SIZE; i++) {
@@ -89,7 +90,7 @@ const App: React.FC = () => {
     
     if (!generatedBoard) {
       console.error(`Failed to generate a valid board after ${MAX_ATTEMPTS} attempts. Please refresh.`);
-      setBoard([]); // Clear board or show error state
+      setBoard([]);
       return;
     }
 
@@ -100,10 +101,34 @@ const App: React.FC = () => {
     setIsGameWon(false);
     setIsChecking(false);
   }, []);
-
-  useEffect(() => {
-    setupGame();
+  
+  const handleStartGame = useCallback((selectedTileset: Tileset) => {
+    setTileset(selectedTileset);
+    setupGame(selectedTileset);
+    setGameState('playing');
   }, [setupGame]);
+
+  const handlePlayAgain = useCallback(() => {
+    if (tileset) {
+      setupGame(tileset);
+    }
+  }, [tileset, setupGame]);
+  
+  useEffect(() => {
+    if (tileset) {
+      const root = document.documentElement;
+      const theme = tileset.theme;
+      root.style.setProperty('--background', theme.background);
+      root.style.setProperty('--text-color', theme.textColor);
+      root.style.setProperty('--accent-color', theme.accentColor);
+      root.style.setProperty('--secondary-text-color', theme.secondaryTextColor);
+      root.style.setProperty('--board-background-color', theme.boardBackgroundColor);
+      root.style.setProperty('--modal-background-color', theme.modalBackgroundColor);
+      root.style.setProperty('--button-background-color', theme.buttonBackgroundColor);
+      root.style.setProperty('--button-text-color', theme.buttonTextColor);
+      root.style.setProperty('--button-hover-background-color', theme.buttonHoverBackgroundColor);
+    }
+  }, [tileset]);
 
   useEffect(() => {
     if (longestCombo < currentCombo) {
@@ -122,15 +147,13 @@ const App: React.FC = () => {
     if (isChecking || isGameWon) return;
 
     const clickedTile = board[clickedIndex];
-    if (clickedTile.shapes.every(s => s === null)) return; // Ignore empty tiles
+    if (clickedTile.shapes.every(s => s === null)) return;
 
-    // If no tile is active, select the clicked tile to start a chain
     if (activeTileIndex === null) {
       setActiveTileIndex(clickedIndex);
       return;
     }
 
-    // Deselect if clicking the same active tile
     if (activeTileIndex === clickedIndex) {
       setActiveTileIndex(null);
       setCurrentCombo(0);
@@ -142,13 +165,12 @@ const App: React.FC = () => {
     const activeTile = board[activeTileIndex];
     const commonShape = activeTile.shapes.find(s => s !== null && clickedTile.shapes.includes(s));
 
-    if (commonShape) { // Match found
+    if (commonShape) {
       setCurrentCombo(prev => prev + 1);
 
       const activeShapeIndex = activeTile.shapes.indexOf(commonShape);
       const clickedShapeIndex = clickedTile.shapes.indexOf(commonShape);
       
-      // Set new active tile immediately for instant feedback
       const isClickedTileBecomingEmpty = clickedTile.shapes.filter(s => s !== null).length === 1;
       setActiveTileIndex(isClickedTileBecomingEmpty ? null : clickedIndex);
       
@@ -159,7 +181,6 @@ const App: React.FC = () => {
 
       setTimeout(() => {
         const newBoard = [...board];
-        // Ensure activeTileIndex is not null before using it.
         const currentActiveTileIndex = activeTileIndex as number;
         const activeShapes = [...newBoard[currentActiveTileIndex].shapes];
         const clickedShapes = [...newBoard[clickedIndex].shapes];
@@ -175,19 +196,23 @@ const App: React.FC = () => {
         setDisappearingShapes(new Map());
         setIsChecking(false);
       }, 400);
-    } else { // No match found
+    } else {
       setCurrentCombo(0);
       setActiveTileIndex(null);
       setTimeout(() => setIsChecking(false), 200);
     }
   };
 
+  if (gameState === 'intro') {
+    return <IntroScreen tilesets={allTilesets} onStartGame={handleStartGame} />;
+  }
+
   if (!tileset) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (
-    <div className="h-screen flex flex-col font-sans p-2">
+    <div className="h-screen flex flex-col p-2">
       <main className="flex flex-wrap flex-grow max-lg:items-center">
         <div className="md:order-2 flex-1">
           <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
@@ -202,7 +227,7 @@ const App: React.FC = () => {
           />
         </div>
       </main>
-      <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={setupGame} />
+      <VictoryModal isOpen={isGameWon} longestCombo={longestCombo} onPlayAgain={handlePlayAgain} />
     </div>
   );
 };

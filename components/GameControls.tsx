@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface GameControlsProps {
@@ -7,8 +8,8 @@ interface GameControlsProps {
 
 const StatDisplay: React.FC<{ label: string; value: number }> = ({ label, value }) => (
   <div className="flex flex-col lg:gap-2">
-    <span className="w-full text-lg lg:text-3xl font-semibold tracking-wide text-[#0f4c81]/70">{label}</span>
-    <span className="w-full text-4xl lg:text-6xl font-bold">{value}</span>
+    <span className="w-full text-lg lg:text-3xl font-semibold tracking-wide text-[var(--secondary-text-color)]">{label}</span>
+    <span className="w-full text-4xl lg:text-6xl font-bold text-[var(--text-color)]">{value}</span>
   </div>
 );
 

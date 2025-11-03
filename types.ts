@@ -11,6 +11,17 @@ export interface Tileset {
   patterns: TilePattern[];
   colors: string[];
   backgroundColors: string[];
+  theme: {
+    background: string;
+    textColor: string;
+    accentColor: string;
+    secondaryTextColor: string;
+    boardBackgroundColor: string;
+    modalBackgroundColor: string;
+    buttonBackgroundColor: string;
+    buttonTextColor: string;
+    buttonHoverBackgroundColor: string;
+  };
 }
 
 export interface BoardTile {

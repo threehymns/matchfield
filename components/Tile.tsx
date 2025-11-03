@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TilePattern } from '../types';
 
@@ -16,7 +17,7 @@ interface TileProps {
 }
 
 const Tile: React.FC<TileProps> = ({ shapes, background, isSelected, onClick, tileIndex, disappearingShapes }) => {
-  const selectedClasses = isSelected ? 'ring-4 ring-[#0f4c81] ring-offset-2 ring-offset-[#94d8f0]' : 'ring-2 ring-transparent';
+  const selectedClasses = isSelected ? 'ring-4 ring-[var(--accent-color)] ring-offset-2 ring-offset-[var(--background)]' : 'ring-2 ring-transparent';
 
   return (
     <div
@@ -32,9 +33,11 @@ const Tile: React.FC<TileProps> = ({ shapes, background, isSelected, onClick, ti
           return (
             <div key={shapeIndex} className="w-full h-full flex items-center justify-center p-1">
               {shape ? (
-                <shape.component
-                  className={`w-full h-full ${shape.color} ${animationClasses}`}
-                />
+                <div className="w-full h-full" style={{ color: shape.color }}>
+                  <shape.component
+                    className={`w-full h-full ${animationClasses}`}
+                  />
+                </div>
               ) : (
                 <div className="w-full h-full" /> // Empty space for matched shapes
               )}

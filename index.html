@@ -29,8 +29,15 @@
     --font-sans: 'Funnel Display Variable', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 </style>
+<style>
+  body {
+    background-color: var(--background, #030712);
+    color: var(--text-color, #f9fafb);
+    transition: background-color 0.5s, color 0.5s;
+  }
+</style>
 </head>
-  <body class="bg-[#94d8f0] text-[#0f4c81]">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

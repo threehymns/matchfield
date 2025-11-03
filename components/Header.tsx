@@ -7,7 +7,7 @@ const Header: React.FC = () => {
       <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-pink-500">
         SVG Tiles
       </h1>
-      <p className="text-slate-400 mt-1">Match the pairs to win.</p>
+      <p className="text-[var(--secondary-text-color)] mt-1">Match the pairs to win.</p>
     </header>
   );
 };

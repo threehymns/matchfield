@@ -47,25 +47,36 @@ export const summerTileset: Tileset = {
   name: 'Summer',
   patterns,
   colors: [
-    'text-[#0f4c81]',
-    'text-[#d9534f]',
-    'text-[#f0ad4e]',
-    'text-[#5cb85c]',
-    'text-[#5bc0de]',
-    'text-[#337ab7]',
-    'text-[#777]',
-    'text-[#f7a8b8]',
-    'text-[#a8d8ea]',
+    '#0f4c81',
+    '#d9534f',
+    '#f0ad4e',
+    '#5cb85c',
+    '#5bc0de',
+    '#337ab7',
+    '#777777',
+    '#f7a8b8',
+    '#a8d8ea',
   ],
    backgroundColors: [
-    '#f0f8ff', // aliceblue
-    '#faebd7', // antiquewhite
-    '#e6e6fa', // lavender
-    '#fff0f5', // lavenderblush
-    '#f5fffa', // mintcream
-    '#f0fff0', // honeydew
-    '#fff5ee', // seashell
-    '#f8f8ff', // ghostwhite
-    '#dcdcdc', // gainsboro
+    '#1a3a52',
+    '#204864',
+    '#265676',
+    '#1c445c',
+    '#1e4c68',
+    '#245a7c',
+    '#3b4b54',
+    '#4a5c66',
+    '#5a6d78',
   ],
+  theme: {
+    background: '#0d2c40',
+    textColor: '#e0f7fa',
+    accentColor: '#5bc0de',
+    secondaryTextColor: '#b0bec5',
+    boardBackgroundColor: 'rgba(15, 76, 129, 0.3)',
+    modalBackgroundColor: '#0f344a',
+    buttonBackgroundColor: '#0f4c81',
+    buttonTextColor: '#ffffff',
+    buttonHoverBackgroundColor: '#1565c0',
+  }
 };
