@@ -7,11 +7,13 @@ const SETTINGS_VERSION = 1;
 interface Settings {
   version: number;
   matchMultipleShapes: boolean;
+  multiMatchBonus: boolean;
 }
 
 const defaultSettings: Settings = {
   version: SETTINGS_VERSION,
   matchMultipleShapes: true,
+  multiMatchBonus: false,
 };
 
 const getStoredSettings = (): Settings => {

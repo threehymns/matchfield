@@ -21,7 +21,8 @@ const TOTAL_SHAPES = GRID_SIZE * SHAPES_PER_TILE;
 const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<'intro' | 'selectingMode' | 'playing'>('intro');
+  const [gameState, setGameState] = useState<'intro' | 'selectingMode' | 'configuringSettings' | 'playing'>('intro');
+  const [previousGameState, setPreviousGameState] = useState<'intro' | 'selectingMode' | 'configuringSettings' | 'playing' | null>(null);
   const [tileset, setTileset] = useState<Tileset | null>(null);
   const [board, setBoard] = useState<BoardTile[]>([]);
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null);
@@ -35,8 +36,8 @@ const App: React.FC = () => {
   const [isExitingIntro, setIsExitingIntro] = useState(false);
   const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
-  const [isSettingsPageOpen, setIsSettingsPageOpen] = useState<boolean>(false);
   const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes');
+  const [multiMatchBonus, setMultiMatchBonus] = useStoredState<boolean>('multiMatchBonus');
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
@@ -134,9 +135,27 @@ const App: React.FC = () => {
 
   const handleModeSelect = (mode: 'Classic' | 'Custom') => {
     setGameMode(mode);
-    if (tileset) {
-      setupGame(tileset);
-      setGameState('playing');
+    if (mode === 'Custom') {
+      setGameState('configuringSettings');
+    } else {
+      setMatchMultipleShapes(true);
+      setMultiMatchBonus(false);
+      if (tileset) {
+        setupGame(tileset);
+        setGameState('playing');
+      }
+    }
+  };
+
+  const handleSettingsConfirm = () => {
+    if (previousGameState) {
+      setGameState(previousGameState);
+      setPreviousGameState(null);
+    } else {
+      if (tileset) {
+        setupGame(tileset);
+        setGameState('playing');
+      }
     }
   };
 
@@ -227,7 +246,7 @@ const App: React.FC = () => {
   }, [board, isGameWon, isMuted, longestCombo, currentCombo]);
 
   const handleTileClick = (clickedIndex: number) => {
-    if (isChecking || isGameWon || isEscapeModalOpen || isSettingsPageOpen) return;
+    if (isChecking || isGameWon || isEscapeModalOpen || gameState === 'configuringSettings') return;
 
     const clickedTile = board[clickedIndex];
     if (clickedTile.shapes.every(s => s === null)) return;
@@ -250,7 +269,8 @@ const App: React.FC = () => {
 
     if (commonShapes.length > 0) {
         playMatchSound(isMuted);
-        setCurrentCombo(prev => prev + 1);
+        const comboIncrease = matchMultipleShapes && multiMatchBonus ? commonShapes.length : 1;
+        setCurrentCombo(prev => prev + comboIncrease);
 
         const newDisappearing = new Map<string, boolean>();
         const shapesToMatch = matchMultipleShapes ? commonShapes : [commonShapes[0]];
@@ -297,12 +317,18 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col p-2 min-h-screen">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
-      {gameState === 'playing' && gameMode === 'Custom' && <SettingsButton onClick={() => setIsSettingsPageOpen(true)} />}
-      {isSettingsPageOpen && (
+      {gameState === 'playing' && gameMode === 'Custom' && <SettingsButton onClick={() => {
+        setPreviousGameState(gameState);
+        setGameState('configuringSettings');
+      }} />}
+      {gameState === 'configuringSettings' && (
         <SettingsPage
-          onClose={() => setIsSettingsPageOpen(false)}
+          onConfirm={handleSettingsConfirm}
           matchMultipleShapes={matchMultipleShapes}
           setMatchMultipleShapes={setMatchMultipleShapes}
+          multiMatchBonus={multiMatchBonus}
+          setMultiMatchBonus={setMultiMatchBonus}
+          isMidGame={previousGameState !== null}
         />
       )}
       {gameState === 'intro' && (
