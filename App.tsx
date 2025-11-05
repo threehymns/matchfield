@@ -11,7 +11,8 @@ import IntroScreen from './components/IntroScreen';
 import MuteButton from './components/MuteButton';
 import EscapeModal from './components/EscapeModal';
 import SettingsButton from './components/SettingsButton';
-import SettingsModal from './components/SettingsModal';
+import SettingsPage from './components/SettingsPage';
+import GameModeScreen from './components/GameModeScreen';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
 const GRID_SIZE = 36;
@@ -20,7 +21,7 @@ const TOTAL_SHAPES = GRID_SIZE * SHAPES_PER_TILE;
 const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<'intro' | 'playing'>('intro');
+  const [gameState, setGameState] = useState<'intro' | 'selectingMode' | 'playing'>('intro');
   const [tileset, setTileset] = useState<Tileset | null>(null);
   const [board, setBoard] = useState<BoardTile[]>([]);
   const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null);
@@ -34,7 +35,7 @@ const App: React.FC = () => {
   const [isExitingIntro, setIsExitingIntro] = useState(false);
   const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [isSettingsPageOpen, setIsSettingsPageOpen] = useState<boolean>(false);
   const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes');
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
 
@@ -125,12 +126,19 @@ const App: React.FC = () => {
   const handleIntroExitComplete = useCallback(() => {
     if (pendingTileset) {
       setTileset(pendingTileset);
-      setupGame(pendingTileset);
-      setGameState('playing');
+      setGameState('selectingMode');
       setIsExitingIntro(false);
       setPendingTileset(null);
     }
-  }, [pendingTileset, setupGame]);
+  }, [pendingTileset]);
+
+  const handleModeSelect = (mode: 'Classic' | 'Custom') => {
+    setGameMode(mode);
+    if (tileset) {
+      setupGame(tileset);
+      setGameState('playing');
+    }
+  };
 
   const handlePlayAgain = useCallback(() => {
     setGameState('intro');
@@ -219,7 +227,7 @@ const App: React.FC = () => {
   }, [board, isGameWon, isMuted, longestCombo, currentCombo]);
 
   const handleTileClick = (clickedIndex: number) => {
-    if (isChecking || isGameWon || isEscapeModalOpen || isSettingsModalOpen) return;
+    if (isChecking || isGameWon || isEscapeModalOpen || isSettingsPageOpen) return;
 
     const clickedTile = board[clickedIndex];
     if (clickedTile.shapes.every(s => s === null)) return;
@@ -289,7 +297,14 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col p-2 min-h-screen">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
-      {gameState === 'playing' && <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />}
+      {gameState === 'playing' && gameMode === 'Custom' && <SettingsButton onClick={() => setIsSettingsPageOpen(true)} />}
+      {isSettingsPageOpen && (
+        <SettingsPage
+          onClose={() => setIsSettingsPageOpen(false)}
+          matchMultipleShapes={matchMultipleShapes}
+          setMatchMultipleShapes={setMatchMultipleShapes}
+        />
+      )}
       {gameState === 'intro' && (
         <IntroScreen
           tilesets={allTilesets}
@@ -299,6 +314,9 @@ const App: React.FC = () => {
           onExitComplete={handleIntroExitComplete}
         />
        )}
+      {gameState === 'selectingMode' && tileset && (
+        <GameModeScreen onModeSelect={handleModeSelect} tilesetName={tileset.name} />
+      )}
       {gameState === 'playing' && !tileset && (
         <div className="flex items-center justify-center h-screen">Loading...</div>
       )}
@@ -316,7 +334,7 @@ const App: React.FC = () => {
           `}</style>
           <main className={`flex flex-wrap flex-grow max-lg:items-center animate-game-fade-in ${isGameWon ? 'pointer-events-none' : ''}`}>
             <div className="md:order-2 flex-1">
-              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} gameMode={gameMode} />
+              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
             </div>
             <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
               <GameBoard
@@ -338,14 +356,6 @@ const App: React.FC = () => {
             isOpen={isEscapeModalOpen}
             onConfirm={handleConfirmReturnToMenu}
             onCancel={handleCancelReturnToMenu}
-          />
-          <SettingsModal
-            isOpen={isSettingsModalOpen}
-            onClose={() => setIsSettingsModalOpen(false)}
-            matchMultipleShapes={matchMultipleShapes}
-            setMatchMultipleShapes={setMatchMultipleShapes}
-            gameMode={gameMode}
-            setGameMode={setGameMode}
           />
         </>
       )}

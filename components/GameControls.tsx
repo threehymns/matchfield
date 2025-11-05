@@ -4,7 +4,6 @@ import React from 'react';
 interface GameControlsProps {
   currentCombo: number;
   longestCombo: number;
-  gameMode: 'Classic' | 'Custom';
 }
 
 const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
@@ -14,12 +13,11 @@ const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ labe
   </div>
 );
 
-const GameControls: React.FC<GameControlsProps> = ({ currentCombo, longestCombo, gameMode }) => {
+const GameControls: React.FC<GameControlsProps> = ({ currentCombo, longestCombo }) => {
   return (
     <div className="w-full flex flex-row sm:flex-col w-full p-4 lg:p-12 xl:p-24 gap-y-8 justify-around md:justify-start">
       <StatDisplay label="Current Combo" value={currentCombo} />
       <StatDisplay label="Longest Combo" value={longestCombo} />
-      <StatDisplay label="Game Mode" value={gameMode} />
     </div>
   );
 };
