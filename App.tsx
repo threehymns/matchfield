@@ -3,12 +3,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { BoardTile, Tileset } from './types';
 import { allTilesets } from './tilesets';
 import { shuffleArray } from './utils/shuffle';
+import { useStoredState } from './hooks/useStoredState';
 import GameBoard from './components/GameBoard';
 import GameControls from './components/GameControls';
 import VictoryModal from './components/VictoryModal';
 import IntroScreen from './components/IntroScreen';
 import MuteButton from './components/MuteButton';
 import EscapeModal from './components/EscapeModal';
+import SettingsButton from './components/SettingsButton';
+import SettingsModal from './components/SettingsModal';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
 const GRID_SIZE = 36;
@@ -31,6 +34,9 @@ const App: React.FC = () => {
   const [isExitingIntro, setIsExitingIntro] = useState(false);
   const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes');
+  const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
     let generatedBoard: BoardTile[] | null = null;
@@ -131,7 +137,8 @@ const App: React.FC = () => {
     setTileset(null);
     setIsGameWon(false);
     setIsPerfectScore(false);
-    setBoard([]); // Reset the board to prevent re-triggering the win condition
+    setBoard([]);
+    setGameMode('Classic');
   }, []);
 
   const handleMuteToggle = () => {
@@ -212,7 +219,7 @@ const App: React.FC = () => {
   }, [board, isGameWon, isMuted, longestCombo, currentCombo]);
 
   const handleTileClick = (clickedIndex: number) => {
-    if (isChecking || isGameWon || isEscapeModalOpen) return;
+    if (isChecking || isGameWon || isEscapeModalOpen || isSettingsModalOpen) return;
 
     const clickedTile = board[clickedIndex];
     if (clickedTile.shapes.every(s => s === null)) return;
@@ -229,53 +236,60 @@ const App: React.FC = () => {
     }
 
     setIsChecking(true);
-    
+
     const activeTile = board[activeTileIndex];
-    const commonShape = activeTile.shapes.find(s => s !== null && clickedTile.shapes.includes(s));
+    const commonShapes = activeTile.shapes.filter(s => s !== null && clickedTile.shapes.includes(s));
 
-    if (commonShape) {
-      playMatchSound(isMuted);
-      setCurrentCombo(prev => prev + 1);
+    if (commonShapes.length > 0) {
+        playMatchSound(isMuted);
+        setCurrentCombo(prev => prev + 1);
 
-      const activeShapeIndex = activeTile.shapes.indexOf(commonShape);
-      const clickedShapeIndex = clickedTile.shapes.indexOf(commonShape);
-      
-      const isClickedTileBecomingEmpty = clickedTile.shapes.filter(s => s !== null).length === 1;
-      setActiveTileIndex(isClickedTileBecomingEmpty ? null : clickedIndex);
-      
-      const newDisappearing = new Map<string, boolean>();
-      newDisappearing.set(`${activeTileIndex}-${activeShapeIndex}`, true);
-      newDisappearing.set(`${clickedIndex}-${clickedShapeIndex}`, true);
-      setDisappearingShapes(newDisappearing);
+        const newDisappearing = new Map<string, boolean>();
+        const shapesToMatch = matchMultipleShapes ? commonShapes : [commonShapes[0]];
 
-      setTimeout(() => {
-        const newBoard = [...board];
-        const currentActiveTileIndex = activeTileIndex as number;
-        const activeShapes = [...newBoard[currentActiveTileIndex].shapes];
-        const clickedShapes = [...newBoard[clickedIndex].shapes];
+        const activeShapes = [...activeTile.shapes];
+        const clickedShapes = [...clickedTile.shapes];
 
-        activeShapes[activeShapes.indexOf(commonShape)] = null;
-        clickedShapes[clickedShapes.indexOf(commonShape)] = null;
+        shapesToMatch.forEach(shape => {
+            const activeShapeIndex = activeShapes.indexOf(shape);
+            if (activeShapeIndex !== -1) {
+                newDisappearing.set(`${activeTileIndex}-${activeShapeIndex}`, true);
+                activeShapes[activeShapeIndex] = null;
+            }
 
-        newBoard[currentActiveTileIndex] = { ...newBoard[currentActiveTileIndex], shapes: activeShapes };
-        newBoard[clickedIndex] = { ...newBoard[clickedIndex], shapes: clickedShapes };
-
-        setBoard(newBoard);
+            const clickedShapeIndex = clickedShapes.indexOf(shape);
+            if (clickedShapeIndex !== -1) {
+                newDisappearing.set(`${clickedIndex}-${clickedShapeIndex}`, true);
+                clickedShapes[clickedShapeIndex] = null;
+            }
+        });
         
-        setDisappearingShapes(new Map());
-        setIsChecking(false);
-      }, 400);
+        const isClickedTileBecomingEmpty = clickedShapes.every(s => s === null);
+        setActiveTileIndex(isClickedTileBecomingEmpty ? null : clickedIndex);
+
+        setDisappearingShapes(newDisappearing);
+
+        setTimeout(() => {
+            const newBoard = [...board];
+            newBoard[activeTileIndex as number] = { ...newBoard[activeTileIndex as number], shapes: activeShapes };
+            newBoard[clickedIndex] = { ...newBoard[clickedIndex], shapes: clickedShapes };
+
+            setBoard(newBoard);
+            setDisappearingShapes(new Map());
+            setIsChecking(false);
+        }, 400);
     } else {
-      playMismatchSound(isMuted);
-      setCurrentCombo(0);
-      setActiveTileIndex(null);
-      setTimeout(() => setIsChecking(false), 200);
+        playMismatchSound(isMuted);
+        setCurrentCombo(0);
+        setActiveTileIndex(null);
+        setTimeout(() => setIsChecking(false), 200);
     }
   };
 
   return (
     <div className="flex flex-col p-2 min-h-screen">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
+      {gameState === 'playing' && <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />}
       {gameState === 'intro' && (
         <IntroScreen
           tilesets={allTilesets}
@@ -302,7 +316,7 @@ const App: React.FC = () => {
           `}</style>
           <main className={`flex flex-wrap flex-grow max-lg:items-center animate-game-fade-in ${isGameWon ? 'pointer-events-none' : ''}`}>
             <div className="md:order-2 flex-1">
-              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
+              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} gameMode={gameMode} />
             </div>
             <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
               <GameBoard
@@ -324,6 +338,14 @@ const App: React.FC = () => {
             isOpen={isEscapeModalOpen}
             onConfirm={handleConfirmReturnToMenu}
             onCancel={handleCancelReturnToMenu}
+          />
+          <SettingsModal
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
+            matchMultipleShapes={matchMultipleShapes}
+            setMatchMultipleShapes={setMatchMultipleShapes}
+            gameMode={gameMode}
+            setGameMode={setGameMode}
           />
         </>
       )}
