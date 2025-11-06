@@ -6,6 +6,9 @@ export const useStoredState = <T>(
   defaultValue: T,
 ): [T, (value: T) => void] => {
   const [value, setValue] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return defaultValue;
+    }
     try {
       const stored = localStorage.getItem(key);
       if (stored) {
