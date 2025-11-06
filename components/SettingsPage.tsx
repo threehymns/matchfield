@@ -8,6 +8,8 @@ interface SettingsPageProps {
   setMatchMultipleShapes: Dispatch<SetStateAction<boolean>>;
   multiMatchBonus: boolean;
   setMultiMatchBonus: Dispatch<SetStateAction<boolean>>;
+  gridSize: number;
+  setGridSize: Dispatch<SetStateAction<number>>;
   isMidGame: boolean;
 }
 
@@ -17,20 +19,22 @@ const SettingsPage: FC<SettingsPageProps> = ({
   setMatchMultipleShapes,
   multiMatchBonus,
   setMultiMatchBonus,
+  gridSize,
+  setGridSize,
   isMidGame,
 }) => {
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-center p-4 text-center bg-zinc-950 animate-fade-in"
+      className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-zinc-950 animate-fade-in"
     >
-      <header className="relative mb-8">
+      <header className="relative mb-8 text-center">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[var(--text-color)]">
           {isMidGame ? 'Settings' : 'Custom Settings'}
         </h1>
       </header>
       <main className="space-y-6 max-w-2xl w-full">
         <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
-          <div>
+          <div className="text-left">
             <label
               htmlFor="match-multiple-shapes"
               className="font-bold text-lg"
@@ -46,7 +50,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
             role="switch"
             aria-checked={matchMultipleShapes}
             onClick={() => setMatchMultipleShapes(!matchMultipleShapes)}
-            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
+            className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
               matchMultipleShapes
                 ? 'bg-[var(--accent-color)]'
                 : 'bg-black/30'
@@ -61,7 +65,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
         </div>
         {matchMultipleShapes && (
           <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
-            <div>
+            <div className="text-left">
               <label
                 htmlFor="multi-match-bonus"
                 className="font-bold text-lg"
@@ -69,7 +73,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
                 Multi-Match Bonus
               </label>
               <p className="text-sm text-[var(--secondary-text-color)]">
-                Get extra combo points for matching multiple shapes at once.
+                Get +1 combo for the first shape, and +2 for each extra.
               </p>
             </div>
             <button
@@ -77,7 +81,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
               role="switch"
               aria-checked={multiMatchBonus}
               onClick={() => setMultiMatchBonus(!multiMatchBonus)}
-              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
+              className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
                 multiMatchBonus
                   ? 'bg-[var(--accent-color)]'
                   : 'bg-black/30'
@@ -91,6 +95,31 @@ const SettingsPage: FC<SettingsPageProps> = ({
             </button>
           </div>
         )}
+        <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
+          <div className="text-left">
+            <label htmlFor="board-size" className="font-bold text-lg">
+              Board Size
+            </label>
+            <p className="text-sm text-[var(--secondary-text-color)]">
+              Choose the number of tiles on the board.
+            </p>
+          </div>
+          <div className="flex rounded-lg bg-black/20 p-1">
+            {[8, 16, 36, 64].map(size => (
+              <button
+                key={size}
+                onClick={() => setGridSize(size)}
+                className={`px-3 py-1 text-sm font-bold rounded-md transition-colors duration-300 ${
+                  gridSize === size
+                    ? 'bg-[var(--accent-color)] text-[var(--button-text-color)]'
+                    : 'text-[var(--secondary-text-color)] hover:bg-black/20'
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
       </main>
       <div className="mt-8 flex flex-col sm:flex-row gap-4 max-w-2xl w-full">
         <button

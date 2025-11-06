@@ -8,12 +8,14 @@ interface Settings {
   version: number;
   matchMultipleShapes: boolean;
   multiMatchBonus: boolean;
+  gridSize: number;
 }
 
 const defaultSettings: Settings = {
   version: SETTINGS_VERSION,
   matchMultipleShapes: true,
   multiMatchBonus: false,
+  gridSize: 36,
 };
 
 const getStoredSettings = (): Settings => {
@@ -22,7 +24,7 @@ const getStoredSettings = (): Settings => {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed.version === SETTINGS_VERSION) {
-        return parsed;
+        return { ...defaultSettings, ...parsed };
       }
     }
   } catch (error) {

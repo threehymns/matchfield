@@ -15,10 +15,7 @@ import SettingsPage from './components/SettingsPage';
 import GameModeScreen from './components/GameModeScreen';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
-const GRID_SIZE = 36;
 const SHAPES_PER_TILE = 4;
-const TOTAL_SHAPES = GRID_SIZE * SHAPES_PER_TILE;
-const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<'intro' | 'selectingMode' | 'configuringSettings' | 'playing'>('intro');
@@ -38,7 +35,11 @@ const App: React.FC = () => {
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
   const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes');
   const [multiMatchBonus, setMultiMatchBonus] = useStoredState<boolean>('multiMatchBonus');
+  const [gridSize, setGridSize] = useStoredState<number>('gridSize');
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
+
+  const TOTAL_SHAPES = gridSize * SHAPES_PER_TILE;
+  const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
     let generatedBoard: BoardTile[] | null = null;
@@ -48,7 +49,7 @@ const App: React.FC = () => {
     while (!generatedBoard && attempts < MAX_ATTEMPTS) {
       attempts++;
       
-      const boardShapes: (number | null)[][] = Array.from({ length: GRID_SIZE }, () =>
+      const boardShapes: (number | null)[][] = Array.from({ length: gridSize }, () =>
         Array(SHAPES_PER_TILE).fill(null)
       );
       const uniqueShapeIds = selectedTileset.patterns.map(p => p.id);
@@ -67,7 +68,7 @@ const App: React.FC = () => {
       }
 
       const allCoords: [number, number][] = [];
-      for (let i = 0; i < GRID_SIZE; i++) {
+      for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < SHAPES_PER_TILE; j++) {
           allCoords.push([i, j]);
         }
@@ -117,7 +118,7 @@ const App: React.FC = () => {
     setLongestCombo(0);
     setIsGameWon(false);
     setIsChecking(false);
-  }, []);
+  }, [gridSize, TOTAL_SHAPES]);
   
   const handleStartGame = useCallback((selectedTileset: Tileset) => {
     setPendingTileset(selectedTileset);
@@ -140,6 +141,7 @@ const App: React.FC = () => {
     } else {
       setMatchMultipleShapes(true);
       setMultiMatchBonus(false);
+      setGridSize(36);
       if (tileset) {
         setupGame(tileset);
         setGameState('playing');
@@ -243,7 +245,7 @@ const App: React.FC = () => {
       }
       setIsGameWon(true);
     }
-  }, [board, isGameWon, isMuted, longestCombo, currentCombo]);
+  }, [board, isGameWon, isMuted, longestCombo, currentCombo, TOTAL_PAIRS]);
 
   const handleTileClick = (clickedIndex: number) => {
     if (isChecking || isGameWon || isEscapeModalOpen || gameState === 'configuringSettings') return;
@@ -269,7 +271,7 @@ const App: React.FC = () => {
 
     if (commonShapes.length > 0) {
         playMatchSound(isMuted);
-        const comboIncrease = matchMultipleShapes && multiMatchBonus ? commonShapes.length : 1;
+        const comboIncrease = matchMultipleShapes && multiMatchBonus ? 1 + (commonShapes.length - 1) * 2 : 1;
         setCurrentCombo(prev => prev + comboIncrease);
 
         const newDisappearing = new Map<string, boolean>();
@@ -328,6 +330,8 @@ const App: React.FC = () => {
           setMatchMultipleShapes={setMatchMultipleShapes}
           multiMatchBonus={multiMatchBonus}
           setMultiMatchBonus={setMultiMatchBonus}
+          gridSize={gridSize}
+          setGridSize={setGridSize}
           isMidGame={previousGameState !== null}
         />
       )}
