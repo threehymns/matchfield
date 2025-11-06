@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { BoardTile, Tileset } from './types';
+import { BoardTile, Tileset, GameSettings } from './types';
 import { allTilesets } from './tilesets';
 import { shuffleArray } from './utils/shuffle';
 import { useStoredState } from './hooks/useStoredState';
@@ -16,6 +16,12 @@ import GameModeScreen from './components/GameModeScreen';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 
 const SHAPES_PER_TILE = 4;
+
+const defaultSettings: GameSettings = {
+  matchMultipleShapes: true,
+  multiMatchBonus: false,
+  gridSize: 36,
+};
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<'intro' | 'selectingMode' | 'configuringSettings' | 'playing'>('intro');
@@ -33,12 +39,11 @@ const App: React.FC = () => {
   const [isExitingIntro, setIsExitingIntro] = useState(false);
   const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
-  const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes', true);
-  const [multiMatchBonus, setMultiMatchBonus] = useStoredState<boolean>('multiMatchBonus', false);
-  const [gridSize, setGridSize] = useStoredState<number>('gridSize', 36);
+  const [customSettings, setCustomSettings] = useStoredState<GameSettings>('customSettings', defaultSettings);
+  const [activeSettings, setActiveSettings] = useState<GameSettings>(defaultSettings);
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
 
-  const TOTAL_SHAPES = gridSize * SHAPES_PER_TILE;
+  const TOTAL_SHAPES = activeSettings.gridSize * SHAPES_PER_TILE;
   const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
   const setupGame = useCallback((selectedTileset: Tileset) => {
@@ -49,7 +54,7 @@ const App: React.FC = () => {
     while (!generatedBoard && attempts < MAX_ATTEMPTS) {
       attempts++;
       
-      const boardShapes: (number | null)[][] = Array.from({ length: gridSize }, () =>
+      const boardShapes: (number | null)[][] = Array.from({ length: activeSettings.gridSize }, () =>
         Array(SHAPES_PER_TILE).fill(null)
       );
       const uniqueShapeIds = selectedTileset.patterns.map(p => p.id);
@@ -68,7 +73,7 @@ const App: React.FC = () => {
       }
 
       const allCoords: [number, number][] = [];
-      for (let i = 0; i < gridSize; i++) {
+      for (let i = 0; i < activeSettings.gridSize; i++) {
         for (let j = 0; j < SHAPES_PER_TILE; j++) {
           allCoords.push([i, j]);
         }
@@ -118,7 +123,7 @@ const App: React.FC = () => {
     setLongestCombo(0);
     setIsGameWon(false);
     setIsChecking(false);
-  }, [gridSize, TOTAL_SHAPES]);
+  }, [activeSettings.gridSize, TOTAL_SHAPES]);
   
   const handleStartGame = useCallback((selectedTileset: Tileset) => {
     setPendingTileset(selectedTileset);
@@ -137,11 +142,10 @@ const App: React.FC = () => {
   const handleModeSelect = (mode: 'Classic' | 'Custom') => {
     setGameMode(mode);
     if (mode === 'Custom') {
+      setActiveSettings(customSettings);
       setGameState('configuringSettings');
     } else {
-      setMatchMultipleShapes(true);
-      setMultiMatchBonus(false);
-      setGridSize(36);
+      setActiveSettings(defaultSettings);
       if (tileset) {
         setupGame(tileset);
         setGameState('playing');
@@ -150,6 +154,7 @@ const App: React.FC = () => {
   };
 
   const handleSettingsConfirm = () => {
+    setActiveSettings(customSettings);
     if (previousGameState) {
       setGameState(previousGameState);
       setPreviousGameState(null);
@@ -271,11 +276,11 @@ const App: React.FC = () => {
 
     if (commonShapes.length > 0) {
         playMatchSound(isMuted);
-        const comboIncrease = matchMultipleShapes && multiMatchBonus ? 1 + (commonShapes.length - 1) * 2 : 1;
+        const comboIncrease = activeSettings.matchMultipleShapes && activeSettings.multiMatchBonus ? 1 + (commonShapes.length - 1) * 2 : 1;
         setCurrentCombo(prev => prev + comboIncrease);
 
         const newDisappearing = new Map<string, boolean>();
-        const shapesToMatch = matchMultipleShapes ? commonShapes : [commonShapes[0]];
+        const shapesToMatch = activeSettings.matchMultipleShapes ? commonShapes : [commonShapes[0]];
 
         const activeShapes = [...activeTile.shapes];
         const clickedShapes = [...clickedTile.shapes];
@@ -326,13 +331,9 @@ const App: React.FC = () => {
       {gameState === 'configuringSettings' && (
         <SettingsPage
           onConfirm={handleSettingsConfirm}
-          matchMultipleShapes={matchMultipleShapes}
-          setMatchMultipleShapes={setMatchMultipleShapes}
-          multiMatchBonus={multiMatchBonus}
-          setMultiMatchBonus={setMultiMatchBonus}
-          gridSize={gridSize}
-          setGridSize={setGridSize}
-          isMidGame={previousGameState !== null}
+          settings={customSettings}
+          setSettings={setCustomSettings}
+          isMidGame={!!previousGameState}
         />
       )}
       {gameState === 'intro' && (

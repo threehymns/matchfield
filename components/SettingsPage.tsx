@@ -1,28 +1,30 @@
 
 import React from 'react';
 import type { FC, Dispatch, SetStateAction } from 'react';
+import { GameSettings } from '../types';
 
 interface SettingsPageProps {
   onConfirm: () => void;
-  matchMultipleShapes: boolean;
-  setMatchMultipleShapes: Dispatch<SetStateAction<boolean>>;
-  multiMatchBonus: boolean;
-  setMultiMatchBonus: Dispatch<SetStateAction<boolean>>;
-  gridSize: number;
-  setGridSize: Dispatch<SetStateAction<number>>;
+  settings: GameSettings;
+  setSettings: Dispatch<SetStateAction<GameSettings>>;
   isMidGame: boolean;
 }
 
 const SettingsPage: FC<SettingsPageProps> = ({
   onConfirm,
-  matchMultipleShapes,
-  setMatchMultipleShapes,
-  multiMatchBonus,
-  setMultiMatchBonus,
-  gridSize,
-  setGridSize,
+  settings,
+  setSettings,
   isMidGame,
 }) => {
+  const { matchMultipleShapes, multiMatchBonus, gridSize } = settings;
+
+  const handleSettingChange = <K extends keyof GameSettings>(
+    key: K,
+    value: GameSettings[K]
+  ) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-zinc-950 animate-fade-in"
@@ -49,7 +51,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
             id="match-multiple-shapes"
             role="switch"
             aria-checked={matchMultipleShapes}
-            onClick={() => setMatchMultipleShapes(!matchMultipleShapes)}
+            onClick={() => handleSettingChange('matchMultipleShapes', !matchMultipleShapes)}
             className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
               matchMultipleShapes
                 ? 'bg-[var(--accent-color)]'
@@ -80,7 +82,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
               id="multi-match-bonus"
               role="switch"
               aria-checked={multiMatchBonus}
-              onClick={() => setMultiMatchBonus(!multiMatchBonus)}
+              onClick={() => handleSettingChange('multiMatchBonus', !multiMatchBonus)}
               className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
                 multiMatchBonus
                   ? 'bg-[var(--accent-color)]'
@@ -108,7 +110,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
             {[9, 16, 36, 64].map(size => (
               <button
                 key={size}
-                onClick={() => setGridSize(size)}
+                onClick={() => handleSettingChange('gridSize', size)}
                 className={`px-3 py-1 text-sm font-bold rounded-md transition-colors duration-300 ${
                   gridSize === size
                     ? 'bg-[var(--accent-color)] text-[var(--button-text-color)]'
