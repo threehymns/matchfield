@@ -13,7 +13,7 @@ interface GameBoardProps {
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, tileset, activeTileIndex, onTileClick, disappearingShapes }) => {
   const patternMap = new Map<number, TilePattern>(tileset.patterns.map(p => [p.id, p]));
-  const gridSize = Math.sqrt(board.length);
+  const gridSize = Math.ceil(Math.sqrt(board.length));
 
   return (
     <>
