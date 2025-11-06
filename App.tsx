@@ -46,7 +46,10 @@ const App: React.FC = () => {
   const TOTAL_SHAPES = activeSettings.gridSize * SHAPES_PER_TILE;
   const TOTAL_PAIRS = TOTAL_SHAPES / 2;
 
-  const setupGame = useCallback((selectedTileset: Tileset) => {
+  const setupGame = useCallback((selectedTileset: Tileset, settings: GameSettings) => {
+    const { gridSize } = settings;
+    const totalShapes = gridSize * SHAPES_PER_TILE;
+
     let generatedBoard: BoardTile[] | null = null;
     let attempts = 0;
     const MAX_ATTEMPTS = 50;
@@ -54,12 +57,12 @@ const App: React.FC = () => {
     while (!generatedBoard && attempts < MAX_ATTEMPTS) {
       attempts++;
       
-      const boardShapes: (number | null)[][] = Array.from({ length: activeSettings.gridSize }, () =>
+      const boardShapes: (number | null)[][] = Array.from({ length: gridSize }, () =>
         Array(SHAPES_PER_TILE).fill(null)
       );
       const uniqueShapeIds = selectedTileset.patterns.map(p => p.id);
 
-      const numTotalPairs = TOTAL_SHAPES / 2;
+      const numTotalPairs = totalShapes / 2;
       const numPairsPerShape = Math.floor(numTotalPairs / uniqueShapeIds.length);
       const remainderPairs = numTotalPairs % uniqueShapeIds.length;
       
@@ -68,12 +71,12 @@ const App: React.FC = () => {
         ...shuffleArray(uniqueShapeIds).slice(0, remainderPairs)
       ]);
       
-      if (pairPool.length * 2 !== TOTAL_SHAPES) {
+      if (pairPool.length * 2 !== totalShapes) {
         console.error("Mismatch in shape counts. The board might be unsolvable.");
       }
 
       const allCoords: [number, number][] = [];
-      for (let i = 0; i < activeSettings.gridSize; i++) {
+      for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < SHAPES_PER_TILE; j++) {
           allCoords.push([i, j]);
         }
@@ -123,7 +126,7 @@ const App: React.FC = () => {
     setLongestCombo(0);
     setIsGameWon(false);
     setIsChecking(false);
-  }, [activeSettings.gridSize, TOTAL_SHAPES]);
+  }, []);
   
   const handleStartGame = useCallback((selectedTileset: Tileset) => {
     setPendingTileset(selectedTileset);
@@ -147,9 +150,9 @@ const App: React.FC = () => {
     } else {
       setActiveSettings(defaultSettings);
       if (tileset) {
-        setupGame(tileset);
-        setGameState('playing');
+        setupGame(tileset, defaultSettings);
       }
+      setGameState('playing');
     }
   };
 
@@ -160,9 +163,9 @@ const App: React.FC = () => {
       setPreviousGameState(null);
     } else {
       if (tileset) {
-        setupGame(tileset);
-        setGameState('playing');
+        setupGame(tileset, customSettings);
       }
+      setGameState('playing');
     }
   };
 
