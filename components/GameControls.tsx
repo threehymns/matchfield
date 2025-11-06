@@ -6,7 +6,7 @@ interface GameControlsProps {
   longestCombo: number;
 }
 
-const StatDisplay: React.FC<{ label: string; value: number }> = ({ label, value }) => (
+const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
   <div className="flex flex-col lg:gap-2">
     <span className="w-full text-lg lg:text-3xl font-semibold tracking-wide text-[var(--secondary-text-color)]">{label}</span>
     <span className="w-full text-4xl lg:text-6xl font-bold text-[var(--text-color)]">{value}</span>

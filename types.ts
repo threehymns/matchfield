@@ -29,3 +29,9 @@ export interface BoardTile {
   background: string;
   shapes: (number | null)[];
 }
+
+export interface GameSettings {
+  matchMultipleShapes: boolean;
+  multiMatchBonus: boolean;
+  gridSize: number;
+}

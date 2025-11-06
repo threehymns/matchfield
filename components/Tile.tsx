@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TilePattern } from '../types';
 
@@ -30,6 +31,7 @@ const Tile: React.FC<TileProps> = ({ shapes, background, isSelected, onClick, ti
 
   return (
     <div
+      data-testid="tile"
       className={`w-full h-full p-0.5 md:p-1 rounded-lg cursor-pointer transition-all duration-300 ${selectedClasses}`}
       style={{ backgroundColor: background }}
       onClick={onClick}

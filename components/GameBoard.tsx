@@ -13,6 +13,7 @@ interface GameBoardProps {
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, tileset, activeTileIndex, onTileClick, disappearingShapes }) => {
   const patternMap = new Map<number, TilePattern>(tileset.patterns.map(p => [p.id, p]));
+  const gridSize = Math.sqrt(board.length);
 
   return (
     <>
@@ -31,7 +32,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, tileset, activeTileIndex, 
           animation: spiral-out 0.4s ease-in forwards;
         }
       `}</style>
-      <div className="grid grid-cols-6 grid-rows-6 gap-1 md:gap-2 h-full mx-auto aspect-square p-1 md:p-2 bg-[var(--board-background-color)] rounded-xl md:rounded-2xl shadow-2xl">
+      <div
+        className="grid gap-1 md:gap-2 h-full mx-auto aspect-square p-1 md:p-2 bg-[var(--board-background-color)] rounded-xl md:rounded-2xl shadow-2xl"
+        style={{
+          gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`,
+        }}
+      >
         {board.map((tileData, index) => {
           const shapesForTile = tileData.shapes.map(patternId => {
             if (patternId === null) return null;
