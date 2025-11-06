@@ -17,9 +17,6 @@ const GameModeScreen: React.FC<GameModeScreenProps> = ({ onModeSelect, tilesetNa
           Select Game Mode
         </h2>
       </header>
-      <p className="text-xl text-zinc-400 mb-20 max-w-2xl">
-        Play in <span className="font-bold text-[var(--accent-color)]">Classic</span> mode with default settings for a chance at the leaderboards, or choose <span className="font-bold text-[var(--accent-color)]">Custom</span> to tailor your experience.
-      </p>
       <main className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
         <button
           onClick={() => onModeSelect('Classic')}

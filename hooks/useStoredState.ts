@@ -1,54 +1,29 @@
 
 import { useState, useEffect } from 'react';
 
-const SETTINGS_KEY = 'matchfield-settings';
-const SETTINGS_VERSION = 1;
-
-interface Settings {
-  version: number;
-  matchMultipleShapes: boolean;
-  multiMatchBonus: boolean;
-  gridSize: number;
-}
-
-const defaultSettings: Settings = {
-  version: SETTINGS_VERSION,
-  matchMultipleShapes: true,
-  multiMatchBonus: false,
-  gridSize: 36,
-};
-
-const getStoredSettings = (): Settings => {
-  try {
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.version === SETTINGS_VERSION) {
-        return { ...defaultSettings, ...parsed };
-      }
-    }
-  } catch (error) {
-    console.error('Error reading settings from local storage:', error);
-  }
-  return defaultSettings;
-};
-
 export const useStoredState = <T>(
-  key: keyof Settings,
+  key: string,
+  defaultValue: T,
 ): [T, (value: T) => void] => {
-  const [settings, setSettings] = useState<Settings>(getStoredSettings);
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error(`Error reading setting "${key}" from local storage:`, error);
+    }
+    return defaultValue;
+  });
 
   useEffect(() => {
     try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error('Error writing settings to local storage:', error);
+      console.error(`Error writing setting "${key}" to local storage:`, error);
     }
-  }, [settings]);
+  }, [key, value]);
 
-  const setValue = (value: T) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  return [settings[key] as T, setValue];
+  return [value, setValue];
 };

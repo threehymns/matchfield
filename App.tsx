@@ -33,9 +33,9 @@ const App: React.FC = () => {
   const [isExitingIntro, setIsExitingIntro] = useState(false);
   const [pendingTileset, setPendingTileset] = useState<Tileset | null>(null);
   const [isEscapeModalOpen, setIsEscapeModalOpen] = useState<boolean>(false);
-  const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes');
-  const [multiMatchBonus, setMultiMatchBonus] = useStoredState<boolean>('multiMatchBonus');
-  const [gridSize, setGridSize] = useStoredState<number>('gridSize');
+  const [matchMultipleShapes, setMatchMultipleShapes] = useStoredState<boolean>('matchMultipleShapes', true);
+  const [multiMatchBonus, setMultiMatchBonus] = useStoredState<boolean>('multiMatchBonus', false);
+  const [gridSize, setGridSize] = useStoredState<number>('gridSize', 36);
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
 
   const TOTAL_SHAPES = gridSize * SHAPES_PER_TILE;

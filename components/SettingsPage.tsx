@@ -105,7 +105,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
             </p>
           </div>
           <div className="flex rounded-lg bg-black/20 p-1">
-            {[8, 16, 36, 64].map(size => (
+            {[9, 16, 36, 64].map(size => (
               <button
                 key={size}
                 onClick={() => setGridSize(size)}
