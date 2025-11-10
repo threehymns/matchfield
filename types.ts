@@ -34,4 +34,7 @@ export interface GameSettings {
   matchMultipleShapes: boolean;
   multiMatchBonus: boolean;
   gridSize: number;
+  timedMode: boolean;
+  timerType: 'count-up' | 'count-down';
+  timeLimit: number; // in seconds
 }

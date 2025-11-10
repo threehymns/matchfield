@@ -21,6 +21,9 @@ const defaultSettings: GameSettings = {
   matchMultipleShapes: true,
   multiMatchBonus: false,
   gridSize: 36,
+  timedMode: false,
+  timerType: 'count-up',
+  timeLimit: 120, // 2 minutes in seconds
 };
 
 const App: React.FC = () => {
@@ -42,6 +45,10 @@ const App: React.FC = () => {
   const [customSettings, setCustomSettings] = useStoredState<GameSettings>('customSettings', defaultSettings);
   const [activeSettings, setActiveSettings] = useState<GameSettings>(defaultSettings);
   const [gameMode, setGameMode] = useState<'Classic' | 'Custom'>('Classic');
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+  const [timeRemaining, setTimeRemaining] = useState<number>(defaultSettings.timeLimit);
+  const [timeTaken, setTimeTaken] = useState<number>(0); // Time taken when game ends
 
   const TOTAL_SHAPES = activeSettings.gridSize * SHAPES_PER_TILE;
   const TOTAL_PAIRS = TOTAL_SHAPES / 2;
@@ -126,7 +133,18 @@ const App: React.FC = () => {
     setLongestCombo(0);
     setIsGameWon(false);
     setIsChecking(false);
-  }, []);
+    
+    // Initialize timer if timed mode is enabled
+    if (settings.timedMode && gameMode === 'Custom') {
+      setTimeElapsed(0);
+      setTimeRemaining(settings.timeLimit);
+      setIsTimerRunning(true);
+    } else {
+      setTimeElapsed(0);
+      setTimeRemaining(settings.timeLimit);
+      setIsTimerRunning(false);
+    }
+  }, [gameMode]);
   
   const handleStartGame = useCallback((selectedTileset: Tileset) => {
     setPendingTileset(selectedTileset);
@@ -148,9 +166,11 @@ const App: React.FC = () => {
       setActiveSettings(customSettings);
       setGameState('configuringSettings');
     } else {
-      setActiveSettings(defaultSettings);
+      // Classic mode should always use default settings with timed mode disabled
+      const classicSettings = { ...defaultSettings, timedMode: false };
+      setActiveSettings(classicSettings);
       if (tileset) {
-        setupGame(tileset, defaultSettings);
+        setupGame(tileset, classicSettings);
       }
       setGameState('playing');
     }
@@ -245,15 +265,69 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const isWon = board.length > 0 && board.every(tile => tile.shapes.every(s => s === null));
-    if (isWon && !isGameWon) {
-      playVictorySound(isMuted);
-      const finalCombo = Math.max(longestCombo, currentCombo);
-      if (finalCombo === TOTAL_PAIRS) {
-        setIsPerfectScore(true);
+    const isTimeUp = activeSettings.timedMode && 
+                    activeSettings.timerType === 'count-down' && 
+                    timeRemaining <= 0;
+    
+    if ((isWon || isTimeUp) && !isGameWon) {
+      if (isWon) {
+        playVictorySound(isMuted);
+        const finalCombo = Math.max(longestCombo, currentCombo);
+        if (finalCombo === TOTAL_PAIRS) {
+          setIsPerfectScore(true);
+        }
+        
+        // Calculate time taken depending on timer type
+        if (activeSettings.timedMode) {
+          if (activeSettings.timerType === 'count-up') {
+            setTimeTaken(timeElapsed);
+          } else { // count-down
+            // In count-down, time taken = time limit - time remaining
+            setTimeTaken(activeSettings.timeLimit - timeRemaining);
+          }
+        }
+        
+        setIsGameWon(true);
+      } else if (isTimeUp) {
+        // Time is up in count-down mode - don't play victory sound
+        setTimeTaken(activeSettings.timeLimit); // All time was used
+        setIsGameWon(true);
       }
-      setIsGameWon(true);
+      setIsTimerRunning(false);
     }
-  }, [board, isGameWon, isMuted, longestCombo, currentCombo, TOTAL_PAIRS]);
+  }, [board, isGameWon, isMuted, longestCombo, currentCombo, TOTAL_PAIRS, timeRemaining, timeElapsed, activeSettings.timedMode, activeSettings.timerType, activeSettings.timeLimit]);
+
+  // Timer logic
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    if (isTimerRunning && activeSettings.timedMode) {
+      if (activeSettings.timerType === 'count-up') {
+        intervalId = setInterval(() => {
+          setTimeElapsed(prev => prev + 1);
+        }, 1000);
+      } else { // count-down
+        intervalId = setInterval(() => {
+          setTimeRemaining(prev => {
+            if (prev <= 1) {
+              clearInterval(intervalId!);
+              setIsTimerRunning(false);
+              // Game over condition when timer reaches 0
+              setIsGameWon(true); // Use won state to show game over
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isTimerRunning, activeSettings.timedMode, activeSettings.timerType]);
 
   const handleTileClick = (clickedIndex: number) => {
     if (isChecking || isGameWon || isEscapeModalOpen || gameState === 'configuringSettings') return;
@@ -368,7 +442,14 @@ const App: React.FC = () => {
           `}</style>
           <main className={`flex flex-wrap flex-grow max-lg:items-center animate-game-fade-in ${isGameWon ? 'pointer-events-none' : ''}`}>
             <div className="md:order-2 flex-1">
-              <GameControls currentCombo={currentCombo} longestCombo={longestCombo} />
+              <GameControls 
+                currentCombo={currentCombo} 
+                longestCombo={longestCombo} 
+                timedMode={activeSettings.timedMode}
+                timerType={activeSettings.timerType}
+                timeElapsed={timeElapsed}
+                timeRemaining={timeRemaining}
+              />
             </div>
             <div className="md:order-1 aspect-square h-fit max-h-[calc(100vmin-1rem)] flex items-center justify-center">
               <GameBoard
@@ -385,6 +466,11 @@ const App: React.FC = () => {
             longestCombo={longestCombo}
             onPlayAgain={handlePlayAgain}
             isPerfectScore={isPerfectScore}
+            isTimeUp={activeSettings.timedMode && 
+                     activeSettings.timerType === 'count-down' && 
+                     timeRemaining <= 0}
+            timeTaken={timeTaken}
+            timedMode={activeSettings.timedMode}
           />
           <EscapeModal
             isOpen={isEscapeModalOpen}

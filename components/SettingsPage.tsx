@@ -16,7 +16,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
   setSettings,
   isMidGame,
 }) => {
-  const { matchMultipleShapes, multiMatchBonus, gridSize } = settings;
+  const { matchMultipleShapes, multiMatchBonus, gridSize, timedMode, timerType, timeLimit } = settings;
 
   const handleSettingChange = <K extends keyof GameSettings>(
     key: K,
@@ -87,7 +87,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
                 multiMatchBonus
                   ? 'bg-[var(--accent-color)]'
                   : 'bg-black/30'
-              }`}
+            }`}
             >
               <span
                 className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${
@@ -96,6 +96,86 @@ const SettingsPage: FC<SettingsPageProps> = ({
               />
             </button>
           </div>
+        )}
+        <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
+          <div className="text-left">
+            <label
+              htmlFor="timed-mode"
+              className="font-bold text-lg"
+            >
+              Timed Mode
+            </label>
+            <p className="text-sm text-[var(--secondary-text-color)]">
+              Enable timer for the game.
+            </p>
+          </div>
+          <button
+            id="timed-mode"
+            role="switch"
+            aria-checked={timedMode}
+            onClick={() => handleSettingChange('timedMode', !timedMode)}
+            className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
+              timedMode
+                ? 'bg-[var(--accent-color)]'
+                : 'bg-black/30'
+            }`}
+          >
+            <span
+              className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${
+                timedMode ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+        {timedMode && (
+          <>
+            <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
+              <div className="text-left">
+                <label htmlFor="timer-type" className="font-bold text-lg">
+                  Timer Type
+                </label>
+                <p className="text-sm text-[var(--secondary-text-color)]">
+                  Choose how the timer behaves.
+                </p>
+              </div>
+              <div className="flex rounded-lg bg-black/20 p-1">
+                {(['count-up', 'count-down'] as const).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => handleSettingChange('timerType', type)}
+                    className={`px-3 py-1 text-sm font-bold rounded-md transition-colors duration-300 ${
+                      timerType === type
+                        ? 'bg-[var(--accent-color)] text-[var(--button-text-color)]'
+                        : 'text-[var(--secondary-text-color)] hover:bg-black/20'
+                    }`}
+                  >
+                    {type === 'count-up' ? 'Count Up' : 'Count Down'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {timerType === 'count-down' && (
+              <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
+                <div className="text-left">
+                  <label htmlFor="time-limit" className="font-bold text-lg">
+                    Time Limit (seconds)
+                  </label>
+                  <p className="text-sm text-[var(--secondary-text-color)]">
+                    Set the time limit for the game.
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  id="time-limit"
+                  min="10"
+                  max="3600"
+                  value={timeLimit}
+                  onChange={(e) => handleSettingChange('timeLimit', parseInt(e.target.value) || 10)}
+                  className="w-24 px-3 py-2 rounded-md bg-black/20 border border-gray-600 text-white"
+                />
+              </div>
+            )}
+          </>
         )}
         <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
           <div className="text-left">
