@@ -2,7 +2,7 @@
 import React from 'react';
 
 interface GameModeScreenProps {
-  onModeSelect: (mode: 'Classic' | 'Custom') => void;
+  onModeSelect: (mode: 'Classic' | 'Custom' | 'Zen') => void;
   tilesetName: string;
 }
 
@@ -31,6 +31,13 @@ const GameModeScreen: React.FC<GameModeScreenProps> = ({ onModeSelect, tilesetNa
         >
           <h3 className="text-4xl font-bold">Custom</h3>
           <p className="text-lg text-[var(--secondary-text-color)] mt-2">Adjust settings to your liking.</p>
+        </button>
+        <button
+          onClick={() => onModeSelect('Zen')}
+          className="md:col-span-2 group relative w-full p-8 overflow-hidden rounded-3xl shadow-lg bg-[var(--modal-background-color)] transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 focus:ring-[var(--accent-color)]"
+        >
+          <h3 className="text-4xl font-bold">Zen</h3>
+          <p className="text-lg text-[var(--secondary-text-color)] mt-2">A random pair of tiles is added to the board every time a match is made.</p>
         </button>
       </main>
       <style>{`

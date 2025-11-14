@@ -16,7 +16,7 @@ const SettingsPage: FC<SettingsPageProps> = ({
   setSettings,
   isMidGame,
 }) => {
-  const { matchMultipleShapes, multiMatchBonus, gridSize, timedMode, timerType, timeLimit } = settings;
+  const { matchMultipleShapes, multiMatchBonus, gridSize, timedMode, timerType, timeLimit, zenMode } = settings;
 
   const handleSettingChange = <K extends keyof GameSettings>(
     key: K,
@@ -201,6 +201,36 @@ const SettingsPage: FC<SettingsPageProps> = ({
               </button>
             ))}
           </div>
+        </div>
+        <div className="flex items-center justify-between p-4 bg-black/10 rounded-lg">
+          <div className="text-left">
+            <label
+              htmlFor="zen-mode"
+              className="font-bold text-lg"
+            >
+              Zen Mode
+            </label>
+            <p className="text-sm text-[var(--secondary-text-color)]">
+              A new pair of shapes is added to the board after each match.
+            </p>
+          </div>
+          <button
+            id="zen-mode"
+            role="switch"
+            aria-checked={zenMode}
+            onClick={() => handleSettingChange('zenMode', !zenMode)}
+            className={`relative inline-flex items-center h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--modal-background-color)] focus:ring-[var(--accent-color)] ${
+              zenMode
+                ? 'bg-[var(--accent-color)]'
+                : 'bg-black/30'
+            }`}
+          >
+            <span
+              className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${
+                zenMode ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
       </main>
       <div className="mt-8 flex flex-col sm:flex-row gap-4 max-w-2xl w-full">

@@ -24,6 +24,7 @@ const defaultSettings: GameSettings = {
   timedMode: false,
   timerType: 'count-up',
   timeLimit: 120, // 2 minutes in seconds
+  zenMode: false,
 };
 
 const App: React.FC = () => {
@@ -160,17 +161,20 @@ const App: React.FC = () => {
     }
   }, [pendingTileset]);
 
-  const handleModeSelect = (mode: 'Classic' | 'Custom') => {
-    setGameMode(mode);
+  const handleModeSelect = (mode: 'Classic' | 'Custom' | 'Zen') => {
+    setGameMode(mode === 'Zen' ? 'Classic' : mode);
     if (mode === 'Custom') {
       setActiveSettings(customSettings);
       setGameState('configuringSettings');
     } else {
-      // Classic mode should always use default settings with timed mode disabled
-      const classicSettings = { ...defaultSettings, timedMode: false };
-      setActiveSettings(classicSettings);
+      const settings = {
+        ...defaultSettings,
+        timedMode: false,
+        zenMode: mode === 'Zen',
+      };
+      setActiveSettings(settings);
       if (tileset) {
-        setupGame(tileset, classicSettings);
+        setupGame(tileset, settings);
       }
       setGameState('playing');
     }
@@ -385,6 +389,32 @@ const App: React.FC = () => {
             const newBoard = [...board];
             newBoard[activeTileIndex as number] = { ...newBoard[activeTileIndex as number], shapes: activeShapes };
             newBoard[clickedIndex] = { ...newBoard[clickedIndex], shapes: clickedShapes };
+
+            if (activeSettings.zenMode && tileset) {
+              const isBoardTotallyEmpty = newBoard.every(tile => tile.shapes.every(s => s === null));
+              if (!isBoardTotallyEmpty) {
+                const emptySlots: [number, number][] = [];
+                newBoard.forEach((tile, tileIndex) => {
+                  tile.shapes.forEach((shape, shapeIndex) => {
+                    if (shape === null) {
+                      emptySlots.push([tileIndex, shapeIndex]);
+                    }
+                  });
+                });
+
+                if (emptySlots.length >= 2) {
+                  const uniqueShapeIds = tileset.patterns.map(p => p.id);
+                  const randomShapeId = uniqueShapeIds[Math.floor(Math.random() * uniqueShapeIds.length)];
+
+                  const shuffledSlots = shuffleArray(emptySlots);
+                  const slot1 = shuffledSlots[0];
+                  const slot2 = shuffledSlots[1];
+
+                  newBoard[slot1[0]].shapes[slot1[1]] = randomShapeId;
+                  newBoard[slot2[0]].shapes[slot2[1]] = randomShapeId;
+                }
+              }
+            }
 
             setBoard(newBoard);
             setDisappearingShapes(new Map());

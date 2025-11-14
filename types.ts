@@ -37,4 +37,5 @@ export interface GameSettings {
   timedMode: boolean;
   timerType: 'count-up' | 'count-down';
   timeLimit: number; // in seconds
+  zenMode: boolean;
 }
