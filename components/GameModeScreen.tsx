@@ -4,9 +4,10 @@ import React from 'react';
 interface GameModeScreenProps {
   onModeSelect: (mode: 'Classic' | 'Custom') => void;
   tilesetName: string;
+  onShowLeaderboard?: () => void;
 }
 
-const GameModeScreen: React.FC<GameModeScreenProps> = ({ onModeSelect, tilesetName }) => {
+const GameModeScreen: React.FC<GameModeScreenProps> = ({ onModeSelect, tilesetName, onShowLeaderboard }) => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 text-center bg-zinc-950 animate-fade-in">
       <header className="relative mb-8">
@@ -33,6 +34,14 @@ const GameModeScreen: React.FC<GameModeScreenProps> = ({ onModeSelect, tilesetNa
           <p className="text-lg text-[var(--secondary-text-color)] mt-2">Adjust settings to your liking.</p>
         </button>
       </main>
+      {onShowLeaderboard && (
+        <button
+          onClick={onShowLeaderboard}
+          className="mt-8 px-6 py-3 bg-black/30 hover:bg-black/50 text-[var(--secondary-text-color)] hover:text-[var(--text-color)] font-semibold rounded-xl transition-all duration-300 border border-white/10 hover:border-white/20"
+        >
+          View Leaderboard
+        </button>
+      )}
       <style>{`
         @keyframes fade-in {
           from { opacity: 0; }

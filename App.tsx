@@ -13,7 +13,9 @@ import EscapeModal from './components/EscapeModal';
 import SettingsButton from './components/SettingsButton';
 import SettingsPage from './components/SettingsPage';
 import GameModeScreen from './components/GameModeScreen';
+import Leaderboard from './components/Leaderboard';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
+import { buildSettingsHash } from './utils/settingsHash';
 
 const SHAPES_PER_TILE = 4;
 
@@ -49,6 +51,7 @@ const App: React.FC = () => {
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(defaultSettings.timeLimit);
   const [timeTaken, setTimeTaken] = useState<number>(0); // Time taken when game ends
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState<boolean>(false);
 
   const TOTAL_SHAPES = activeSettings.gridSize * SHAPES_PER_TILE;
   const TOTAL_PAIRS = TOTAL_SHAPES / 2;
@@ -423,7 +426,11 @@ const App: React.FC = () => {
         />
        )}
       {gameState === 'selectingMode' && tileset && (
-        <GameModeScreen onModeSelect={handleModeSelect} tilesetName={tileset.name} />
+        <GameModeScreen
+          onModeSelect={handleModeSelect}
+          tilesetName={tileset.name}
+          onShowLeaderboard={() => setIsLeaderboardOpen(true)}
+        />
       )}
       {gameState === 'playing' && !tileset && (
         <div className="flex items-center justify-center h-screen">Loading...</div>
@@ -471,6 +478,8 @@ const App: React.FC = () => {
                      timeRemaining <= 0}
             timeTaken={timeTaken}
             timedMode={activeSettings.timedMode}
+            gameMode={gameMode}
+            settingsHash={gameMode === 'Classic' ? 'classic' : buildSettingsHash(activeSettings)}
           />
           <EscapeModal
             isOpen={isEscapeModalOpen}
@@ -478,6 +487,12 @@ const App: React.FC = () => {
             onCancel={handleCancelReturnToMenu}
           />
         </>
+      )}
+      {isLeaderboardOpen && (
+        <Leaderboard
+          initialSettingsHash={gameMode === 'Custom' ? buildSettingsHash(customSettings) : 'classic'}
+          onClose={() => setIsLeaderboardOpen(false)}
+        />
       )}
     </div>
   );
