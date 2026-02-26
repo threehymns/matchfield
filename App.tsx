@@ -490,7 +490,7 @@ const App: React.FC = () => {
       )}
       {isLeaderboardOpen && (
         <Leaderboard
-          currentSettingsHash={gameMode === 'Custom' ? buildSettingsHash(customSettings) : undefined}
+          initialSettingsHash={gameMode === 'Custom' ? buildSettingsHash(customSettings) : 'classic'}
           onClose={() => setIsLeaderboardOpen(false)}
         />
       )}
