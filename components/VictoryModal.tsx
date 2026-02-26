@@ -1,15 +1,19 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
 
 interface VictoryModalProps {
   isOpen: boolean;
   longestCombo: number;
   onPlayAgain: () => void;
   isPerfectScore: boolean;
-  isTimeUp?: boolean; // Added for timed game over
-  timeTaken?: number; // Time taken in seconds
+  isTimeUp?: boolean;
+  timeTaken?: number;
   timedMode?: boolean;
+  tilesetName?: string;
+  isClassicMode?: boolean;
 }
 
 const formatTime = (seconds: number): string => {
@@ -18,7 +22,36 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const VictoryModal: React.FC<VictoryModalProps> = ({ isOpen, longestCombo, onPlayAgain, isPerfectScore, isTimeUp = false, timeTaken = 0, timedMode = false }) => {
+const VictoryModal: React.FC<VictoryModalProps> = ({
+  isOpen,
+  longestCombo,
+  onPlayAgain,
+  isPerfectScore,
+  isTimeUp = false,
+  timeTaken = 0,
+  timedMode = false,
+  tilesetName,
+  isClassicMode = false,
+}) => {
+  const [playerName, setPlayerName] = useState('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitScore = useMutation(api.leaderboard.submitScore);
+
+  // Reset submission state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setHasSubmitted(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
+
+  // Load saved player name from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('matchfield-player-name');
+    if (saved) setPlayerName(saved);
+  }, []);
+
   useEffect(() => {
     if (isOpen && isPerfectScore && !isTimeUp && typeof confetti === 'function') {
       const duration = 5 * 1000;
@@ -41,7 +74,30 @@ const VictoryModal: React.FC<VictoryModalProps> = ({ isOpen, longestCombo, onPla
     }
   }, [isOpen, isPerfectScore, isTimeUp]);
 
+  const handleSubmitScore = async () => {
+    const trimmedName = playerName.trim();
+    if (!trimmedName || !tilesetName || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      localStorage.setItem('matchfield-player-name', trimmedName);
+      await submitScore({
+        playerName: trimmedName,
+        tileset: tilesetName,
+        longestCombo,
+        isPerfectScore,
+      });
+      setHasSubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit score:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!isOpen) return null;
+
+  const canSubmit = isClassicMode && !isTimeUp && tilesetName;
 
   return (
     <div className="fixed inset-0 bg-[var(--background)] flex items-center justify-center z-50 animate-modal-fade-in">
@@ -66,6 +122,41 @@ const VictoryModal: React.FC<VictoryModalProps> = ({ isOpen, longestCombo, onPla
             <p className="text-3xl font-bold">{formatTime(timeTaken)}</p>
           </div>
         )}
+
+        {canSubmit && !hasSubmitted && (
+          <div className="mb-6">
+            <p className="text-[var(--secondary-text-color)] text-sm mb-2">
+              Submit your score to the leaderboard
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmitScore()}
+                placeholder="Your name"
+                maxLength={20}
+                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-[var(--text-color)] placeholder-[var(--secondary-text-color)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-opacity-50"
+              />
+              <button
+                onClick={handleSubmitScore}
+                disabled={isSubmitting || !playerName.trim()}
+                className="px-4 py-2 bg-[var(--button-background-color)] hover:bg-[var(--button-hover-background-color)] text-[var(--button-text-color)] font-semibold rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? '...' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {canSubmit && hasSubmitted && (
+          <div className="mb-6 bg-black/20 rounded-lg p-3">
+            <p className="text-[var(--accent-color)] text-sm font-semibold">
+              Score submitted!
+            </p>
+          </div>
+        )}
+
         <button
           onClick={onPlayAgain}
           className="w-full px-6 py-3 bg-[var(--button-background-color)] hover:bg-[var(--button-hover-background-color)] text-[var(--button-text-color)] font-bold rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-opacity-75"
