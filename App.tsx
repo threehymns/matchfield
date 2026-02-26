@@ -15,6 +15,7 @@ import SettingsPage from './components/SettingsPage';
 import GameModeScreen from './components/GameModeScreen';
 import Leaderboard from './components/Leaderboard';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
+import { buildSettingsHash } from './utils/settingsHash';
 
 const SHAPES_PER_TILE = 4;
 
@@ -477,8 +478,8 @@ const App: React.FC = () => {
                      timeRemaining <= 0}
             timeTaken={timeTaken}
             timedMode={activeSettings.timedMode}
-            tilesetName={tileset?.name}
-            isClassicMode={gameMode === 'Classic'}
+            gameMode={gameMode}
+            settingsHash={gameMode === 'Classic' ? 'classic' : buildSettingsHash(activeSettings)}
           />
           <EscapeModal
             isOpen={isEscapeModalOpen}
@@ -489,7 +490,7 @@ const App: React.FC = () => {
       )}
       {isLeaderboardOpen && (
         <Leaderboard
-          tilesetName={tileset?.name}
+          currentSettingsHash={gameMode === 'Custom' ? buildSettingsHash(customSettings) : undefined}
           onClose={() => setIsLeaderboardOpen(false)}
         />
       )}

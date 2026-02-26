@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+import { describeSettings } from "../utils/settingsHash";
 
 interface LeaderboardProps {
-  tilesetName?: string;
+  /** The settings hash for the current game context (if any). */
+  currentSettingsHash?: string;
   onClose: () => void;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ tilesetName, onClose }) => {
-  const [filter, setFilter] = useState<"global" | "tileset">(
-    tilesetName ? "tileset" : "global"
+const CLASSIC_HASH = "classic";
+
+const Leaderboard: React.FC<LeaderboardProps> = ({
+  currentSettingsHash,
+  onClose,
+}) => {
+  const [activeHash, setActiveHash] = useState(
+    currentSettingsHash ?? CLASSIC_HASH,
   );
 
   const scores = useQuery(api.leaderboard.getTopScores, {
-    tileset: filter === "tileset" ? tilesetName : undefined,
+    settingsHash: activeHash,
     limit: 20,
   });
 
@@ -41,30 +48,34 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tilesetName, onClose }) => {
             </button>
           </div>
 
-          {tilesetName && (
-            <div className="flex gap-2 mb-4">
+          {/* Filter tabs */}
+          <div className="flex gap-2 mb-4 flex-wrap">
+            <button
+              onClick={() => setActiveHash(CLASSIC_HASH)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                activeHash === CLASSIC_HASH
+                  ? "bg-[var(--button-background-color,#ff6b6b)] text-[var(--button-text-color,#fff)]"
+                  : "bg-black/20 text-[var(--secondary-text-color,#888)] hover:bg-black/30"
+              }`}
+            >
+              Classic
+            </button>
+            {currentSettingsHash && currentSettingsHash !== CLASSIC_HASH && (
               <button
-                onClick={() => setFilter("global")}
+                onClick={() => setActiveHash(currentSettingsHash)}
                 className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  filter === "global"
+                  activeHash === currentSettingsHash
                     ? "bg-[var(--button-background-color,#ff6b6b)] text-[var(--button-text-color,#fff)]"
                     : "bg-black/20 text-[var(--secondary-text-color,#888)] hover:bg-black/30"
                 }`}
               >
-                Global
+                Custom ({describeSettings(currentSettingsHash)})
               </button>
-              <button
-                onClick={() => setFilter("tileset")}
-                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  filter === "tileset"
-                    ? "bg-[var(--button-background-color,#ff6b6b)] text-[var(--button-text-color,#fff)]"
-                    : "bg-black/20 text-[var(--secondary-text-color,#888)] hover:bg-black/30"
-                }`}
-              >
-                {tilesetName}
-              </button>
-            </div>
-          )}
+            )}
+          </div>
+          <p className="text-xs text-[var(--secondary-text-color,#888)] mb-2">
+            {describeSettings(activeHash)}
+          </p>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
@@ -82,7 +93,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tilesetName, onClose }) => {
                 <tr className="text-[var(--secondary-text-color,#888)] text-sm border-b border-white/10">
                   <th className="text-left py-2 w-10">#</th>
                   <th className="text-left py-2">Player</th>
-                  <th className="text-left py-2">Tileset</th>
                   <th className="text-right py-2">Combo</th>
                   <th className="text-right py-2">Date</th>
                 </tr>
@@ -111,13 +121,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ tilesetName, onClose }) => {
                     <td className="py-2.5 truncate max-w-[120px]">
                       {score.playerName}
                       {score.isPerfectScore && (
-                        <span className="ml-1 text-yellow-400" title="Perfect score">
+                        <span
+                          className="ml-1 text-yellow-400"
+                          title="Perfect score"
+                        >
                           *
                         </span>
                       )}
-                    </td>
-                    <td className="py-2.5 text-sm text-[var(--secondary-text-color,#888)] truncate max-w-[80px]">
-                      {score.tileset}
                     </td>
                     <td className="py-2.5 text-right tabular-nums">
                       {score.longestCombo}

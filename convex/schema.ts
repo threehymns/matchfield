@@ -4,11 +4,12 @@ import { v } from "convex/values";
 export default defineSchema({
   leaderboard: defineTable({
     playerName: v.string(),
-    tileset: v.string(),
+    gameMode: v.string(), // "Classic" or "Custom"
+    settingsHash: v.string(), // "classic" for Classic, deterministic key for Custom
     longestCombo: v.number(),
     isPerfectScore: v.boolean(),
     completedAt: v.number(), // timestamp
   })
-    .index("by_tileset", ["tileset", "longestCombo"])
-    .index("by_combo", ["longestCombo"]),
+    .index("by_settings", ["settingsHash", "longestCombo"])
+    .index("by_mode", ["gameMode", "longestCombo"]),
 });

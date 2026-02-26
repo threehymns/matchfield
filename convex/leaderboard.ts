@@ -3,37 +3,19 @@ import { v } from "convex/values";
 
 export const getTopScores = query({
   args: {
-    tileset: v.optional(v.string()),
+    settingsHash: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit ?? 10;
 
-    if (args.tileset) {
-      const scores = await ctx.db
-        .query("leaderboard")
-        .withIndex("by_tileset", (q) => q.eq("tileset", args.tileset!))
-        .order("desc")
-        .take(100);
-
-      // Sort by longestCombo descending, then by completedAt ascending (earlier = better)
-      scores.sort((a, b) => {
-        if (b.longestCombo !== a.longestCombo) {
-          return b.longestCombo - a.longestCombo;
-        }
-        return a.completedAt - b.completedAt;
-      });
-
-      return scores.slice(0, limit);
-    }
-
-    // Global leaderboard
     const scores = await ctx.db
       .query("leaderboard")
-      .withIndex("by_combo")
+      .withIndex("by_settings", (q) => q.eq("settingsHash", args.settingsHash))
       .order("desc")
       .take(100);
 
+    // Sort by longestCombo descending, then by completedAt ascending (earlier = better)
     scores.sort((a, b) => {
       if (b.longestCombo !== a.longestCombo) {
         return b.longestCombo - a.longestCombo;
@@ -48,7 +30,8 @@ export const getTopScores = query({
 export const submitScore = mutation({
   args: {
     playerName: v.string(),
-    tileset: v.string(),
+    gameMode: v.string(),
+    settingsHash: v.string(),
     longestCombo: v.number(),
     isPerfectScore: v.boolean(),
   },
@@ -60,7 +43,8 @@ export const submitScore = mutation({
 
     await ctx.db.insert("leaderboard", {
       playerName: trimmedName,
-      tileset: args.tileset,
+      gameMode: args.gameMode,
+      settingsHash: args.settingsHash,
       longestCombo: args.longestCombo,
       isPerfectScore: args.isPerfectScore,
       completedAt: Date.now(),
