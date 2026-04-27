@@ -14,6 +14,7 @@ import SettingsButton from './components/SettingsButton';
 import SettingsPage from './components/SettingsPage';
 import GameModeScreen from './components/GameModeScreen';
 import Leaderboard from './components/Leaderboard';
+import { UserMenu } from './components/UserMenu';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 import { buildSettingsHash } from './utils/settingsHash';
 

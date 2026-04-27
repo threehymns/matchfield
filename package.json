@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth/core": "^0.37.0",
+    "@convex-dev/auth": "^0.0.91",
+    "@oslojs/crypto": "^1.0.1",
     "@tailwindcss/vite": "^4.1.16",
     "@vercel/analytics": "^1.5.0",
     "canvas-confetti": "^1.9.4",
@@ -16,6 +19,7 @@
     "lucide-react": "^0.552.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "resend": "^6.12.2",
     "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
