@@ -72,6 +72,8 @@ export const listBoards = query({
   },
 });
 
+import { getAuthUserId } from "@convex-dev/auth/server";
+
 export const submitScore = mutation({
   args: {
     playerName: v.string(),
@@ -86,8 +88,29 @@ export const submitScore = mutation({
       throw new Error("Player name cannot be empty");
     }
 
+    const userId = await getAuthUserId(ctx);
+
+    // If they are not logged in, ensure the name is not claimed
+    if (userId === null) {
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("customDisplayName", (q) => q.eq("customDisplayName", trimmedName))
+        .first();
+
+      if (existingUser !== null) {
+         throw new Error("This name is already claimed by a registered user. Please sign in or choose another name.");
+      }
+    } else {
+      // If logged in, they should only be submitting scores under their claimed name
+      const user = await ctx.db.get(userId);
+      if (user && user.customDisplayName && user.customDisplayName !== trimmedName) {
+        throw new Error("You must submit scores under your claimed name, or change your name.");
+      }
+    }
+
     await ctx.db.insert("leaderboard", {
       playerName: trimmedName,
+      userId: userId !== null ? userId : undefined,
       gameMode: args.gameMode,
       settingsHash: args.settingsHash,
       longestCombo: args.longestCombo,

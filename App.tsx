@@ -14,6 +14,7 @@ import SettingsButton from './components/SettingsButton';
 import SettingsPage from './components/SettingsPage';
 import GameModeScreen from './components/GameModeScreen';
 import Leaderboard from './components/Leaderboard';
+import { UserMenu } from './components/UserMenu';
 import { playMatchSound, playMismatchSound, playVictorySound } from './utils/sounds';
 import { buildSettingsHash } from './utils/settingsHash';
 
@@ -404,6 +405,7 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col p-2 min-h-screen">
       <MuteButton isMuted={isMuted} onToggle={handleMuteToggle} />
+      <UserMenu />
       {gameState === 'playing' && gameMode === 'Custom' && <SettingsButton onClick={() => {
         setPreviousGameState(gameState);
         setGameState('configuringSettings');

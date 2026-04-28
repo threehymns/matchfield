@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useConvexAuth } from 'convex/react';
 import { api } from '../convex/_generated/api';
+import { useAuthActions } from "@convex-dev/auth/react";
 
 interface VictoryModalProps {
   isOpen: boolean;
@@ -43,7 +44,17 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
   const [playerName, setPlayerName] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const submitScore = useMutation(api.leaderboard.submitScore);
+  const { signIn } = useAuthActions();
+  const { isAuthenticated } = useConvexAuth();
+  // @ts-ignore
+  const claimName = useMutation(api.users.claimName);
+
+  // @ts-ignore
+  const userDetails = useQuery(api.users.currentUserDetails);
+  const userName = userDetails?.name;
+
   const scores = useQuery(
     api.leaderboard.getTopScores,
     isOpen ? { settingsHash, limit: 10 } : 'skip',
@@ -85,13 +96,30 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
     }
   }, [isOpen, isPerfectScore, isTimeUp]);
 
+  useEffect(() => {
+    if (userName) {
+      setPlayerName(userName);
+    }
+  }, [userName]);
+
   const handleSubmitScore = async () => {
     const trimmedName = playerName.trim();
     if (!trimmedName || isSubmitting) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       localStorage.setItem('matchfield-player-name', trimmedName);
+
+      // If user is logged in but hasn't claimed a name or is changing it
+      if (isAuthenticated && userName !== undefined && userName !== trimmedName) {
+        try {
+          await claimName({ name: trimmedName });
+        } catch (claimErr: any) {
+          throw new Error(claimErr.message || "Failed to claim name");
+        }
+      }
+
       await submitScore({
         playerName: trimmedName,
         gameMode,
@@ -100,8 +128,16 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
         isPerfectScore,
       });
       setHasSubmitted(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit score:', err);
+      // Determine error message safely
+      let errorMsg = "An error occurred submitting your score.";
+      if (err instanceof Error) {
+          // Convex passes the server throw Error message in the Error object message property
+          const match = err.message.match(/Uncaught Error: (.*)/);
+          errorMsg = match ? match[1] : err.message;
+      }
+      setSubmitError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -144,6 +180,22 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
             <p className="text-[var(--secondary-text-color)] text-sm mb-2">
               Submit to the {gameMode === 'Classic' ? 'Classic' : 'Custom'} leaderboard
             </p>
+            {submitError && (
+              <div className="mb-2 text-red-500 text-sm">
+                {submitError}
+                {submitError.includes("Please sign in") && (
+                  <span>
+                    {" "}
+                    <button
+                      onClick={() => void signIn("google")}
+                      className="underline text-blue-400 hover:text-blue-300"
+                    >
+                      Sign in with Google
+                    </button> to claim this name.
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex gap-2">
               <input
                 type="text"
@@ -166,10 +218,22 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
         )}
 
         {canSubmit && hasSubmitted && (
-          <div className="mb-4 bg-black/20 rounded-lg p-2">
-            <p className="text-[var(--accent-color)] text-sm font-semibold">
+          <div className="mb-4 bg-black/20 rounded-lg p-3">
+            <p className="text-[var(--accent-color)] text-sm font-semibold mb-2">
               Score submitted!
             </p>
+            {/* If they submitted successfully but aren't signed in, prompt them to claim it */}
+            {!isAuthenticated && (
+              <div className="mt-2 text-sm text-[var(--secondary-text-color)]">
+                <p className="mb-2">Want to claim "{playerName}" permanently?</p>
+                <button
+                  onClick={() => void signIn("google")}
+                  className="px-4 py-2 bg-white text-black font-semibold rounded hover:bg-gray-200 transition"
+                >
+                  Sign in with Google
+                </button>
+              </div>
+            )}
           </div>
         )}
 
