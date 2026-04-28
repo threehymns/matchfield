@@ -48,7 +48,7 @@ export const claimName = mutation({
     // Migrate existing anonymous scores under this name to the user
     const allScoresForName = await ctx.db
       .query("leaderboard")
-      .filter((q) => q.eq(q.field("playerName"), trimmedName))
+      .withIndex("by_playerName", (q) => q.eq("playerName", trimmedName))
       .collect();
 
     for (const score of allScoresForName) {

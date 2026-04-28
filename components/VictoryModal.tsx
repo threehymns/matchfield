@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useConvexAuth } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { useAuthActions } from "@convex-dev/auth/react";
 
@@ -47,6 +47,7 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const submitScore = useMutation(api.leaderboard.submitScore);
   const { signIn } = useAuthActions();
+  const { isAuthenticated } = useConvexAuth();
   // @ts-ignore
   const claimName = useMutation(api.users.claimName);
 
@@ -110,7 +111,7 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
       localStorage.setItem('matchfield-player-name', trimmedName);
 
       // If user is logged in but hasn't claimed a name or is changing it
-      if (userName !== undefined && userName !== null && userName !== trimmedName) {
+      if (isAuthenticated && userName !== undefined && userName !== trimmedName) {
         try {
           await claimName({ name: trimmedName });
         } catch (claimErr: any) {
@@ -221,7 +222,7 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
               Score submitted!
             </p>
             {/* If they submitted successfully but aren't signed in, prompt them to claim it */}
-            {userName === null && (
+            {!isAuthenticated && (
               <div className="mt-2 text-sm text-[var(--secondary-text-color)]">
                 <p className="mb-2">Want to claim "{playerName}" permanently?</p>
                 <button

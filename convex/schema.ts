@@ -25,5 +25,6 @@ export default defineSchema({
   })
     .index("by_settings", ["settingsHash", "longestCombo"])
     .index("by_mode", ["gameMode", "longestCombo"])
-    .index("by_userId", ["userId"]),
+    .index("by_userId", ["userId"])
+    .index("by_playerName", ["playerName"]),
 });
