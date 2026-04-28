@@ -216,10 +216,22 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
         )}
 
         {canSubmit && hasSubmitted && (
-          <div className="mb-4 bg-black/20 rounded-lg p-2">
-            <p className="text-[var(--accent-color)] text-sm font-semibold">
+          <div className="mb-4 bg-black/20 rounded-lg p-3">
+            <p className="text-[var(--accent-color)] text-sm font-semibold mb-2">
               Score submitted!
             </p>
+            {/* If they submitted successfully but aren't signed in, prompt them to claim it */}
+            {userName === null && (
+              <div className="mt-2 text-sm text-[var(--secondary-text-color)]">
+                <p className="mb-2">Want to claim "{playerName}" permanently?</p>
+                <button
+                  onClick={() => void signIn("google")}
+                  className="px-4 py-2 bg-white text-black font-semibold rounded hover:bg-gray-200 transition"
+                >
+                  Sign in with Google
+                </button>
+              </div>
+            )}
           </div>
         )}
 
