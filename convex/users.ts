@@ -74,12 +74,15 @@ export const claimName = mutation({
   },
 });
 
-export const currentUserName = query({
+export const currentUserDetails = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) return null;
     const user = await ctx.db.get(userId);
-    return user?.customDisplayName || null;
+    return {
+      name: user?.customDisplayName || null,
+      image: user?.image || null,
+    };
   }
 });

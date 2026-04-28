@@ -52,7 +52,8 @@ const VictoryModal: React.FC<VictoryModalProps> = ({
   const claimName = useMutation(api.users.claimName);
 
   // @ts-ignore
-  const userName = useQuery(api.users.currentUserName);
+  const userDetails = useQuery(api.users.currentUserDetails);
+  const userName = userDetails?.name;
 
   const scores = useQuery(
     api.leaderboard.getTopScores,
